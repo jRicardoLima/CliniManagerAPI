@@ -67,4 +67,21 @@ class BussinessUnitsController extends Controller
          return $this->error('Error',480,$e->getMessage());
         }
     }
+
+    public function search(Request $request)
+    {
+        try {
+            DB::beginTransaction();
+            if($request->all() == null || $request->all() == ''){
+                $result = $this->bussinessRepository->findAll();
+                DB::commit();
+                var_dump($result);
+                exit();
+                return $this->success($result,'success',200);
+            }
+        }catch (Exception $e){
+            DB::rollBack();
+            return $this->error('Error',480);
+        }
+    }
 }

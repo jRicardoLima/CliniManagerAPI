@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ApiExternalController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BussinessUnitsController;
 use App\Http\Controllers\OccupationController;
@@ -31,6 +32,10 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
             echo 'Falhou';
         });
 
+        //ApiExternal
+        Route::post('/admin/cep-api/cep',[ApiExternalController::class,'cep']);
+        //End apiExternal
+
         //Occupation
         Route::post('/admin/occupation/search',[OccupationController::class,'search']);
         Route::post('/admin/occupation/store',[OccupationController::class,'store']);
@@ -40,6 +45,7 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
 
         //BussinessUnits
         Route::post('/admin/bussiness-units/store',[BussinessUnitsController::class,'store']);
+        Route::post('/admin/bussiness-units/search',[BussinessUnitsController::class,'search']);
         //End bussinessUnits
     });
 });
