@@ -9,11 +9,14 @@ use App\Models\FactoriesModels\ModelsFactory;
 use App\Repository\IRepository;
 use App\Repository\MediatorRepository\DispatchNotifier;
 use App\Repository\MediatorRepository\INotifer;
+use App\Repository\Serializable;
 use Exception;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Str;
+use stdClass;
 
-class BussinessUnitRepositoryConcrete implements IRepository,INotifer
+class BussinessUnitRepositoryConcrete implements IRepository,INotifer,Serializable
 {
     protected  $model = null;
 
@@ -22,22 +25,29 @@ class BussinessUnitRepositoryConcrete implements IRepository,INotifer
         $this->model = App::make(ModelsFactory::class,['className' => BussinessUnit::class]);
     }
 
-    public function findId($id, bool $uuid = false)
+    public function findId($id, bool $uuid = false,bool $serialize = false)
     {
         if(!$uuid){
             return $this->model->where('id',$id)
                                ->where('organization_id','=',auth()->user()->organization_id)
+                               ->with('addressRelation')
                                ->first();
         } else {
             return $this->model->where('uuid',$id)
                                ->where('organization_id','=',auth()->user()->organization_id)
+                               ->with('addressRelation')
                                ->first();
         }
     }
 
-    public function findAll()
+    public function findAll(bool $serialize = false)
     {
-        return $this->model->where('organization_id','=',auth()->user()->organization_id)->get();
+        $ret = $this->model->where('organization_id','=',auth()->user()->organization_id)->with('addressRelation')->get();
+        if($serialize){
+         return $this->serialize($ret);
+        } else {
+            return $ret;
+        }
     }
 
     public function save(object $obj, bool $returnObject = false)
@@ -77,7 +87,7 @@ class BussinessUnitRepositoryConcrete implements IRepository,INotifer
         }
     }
 
-    public function get(array $conditions, array $coluns = [], bool $join = false, bool $first = false)
+    public function get(array $conditions, array $coluns = [], bool $join = false, bool $first = false,bool $serialize = false)
     {
         $query = $this->model;
 
@@ -86,26 +96,35 @@ class BussinessUnitRepositoryConcrete implements IRepository,INotifer
         }
 
        if($join){
-           $query = $query->join('address_id','=','addresses.id');
+           $query = $query->join('adresses','bussiness_units.address_id','=','adresses.id');
        }
 
-       if(array_key_exists('companyName',$conditions)){
-           $query = $query->where('company_name','=',$conditions['companyName']);
+       if(array_key_exists('id',$conditions)){
+           $query = $query->where('bussiness_units.id','=',$conditions['id']);
        }
-       if(array_key_exists('fantasyName',$conditions)){
-           $query = $query->where('fantasy_name','=',$conditions['fantasyName']);
+       if(array_key_exists('company_name',$conditions)){
+           $query = $query->where('bussiness_units.company_name','like','%'.$conditions['company_name'].'%');
        }
-       if(array_key_exists('cpfCnpj',$conditions)){
-           $query = $query->where('cpf_cnpj','=',$conditions['cpfCnpj']);
+       if(array_key_exists('fantasy_name',$conditions)){
+           $query = $query->where('bussiness_units.fantasy_name','like','%'.$conditions['fantasy_name'].'%');
+       }
+       if(array_key_exists('cpf_cnpj',$conditions)){
+           $query = $query->where('bussiness_units.cpf_cnpj','=',$conditions['cpf_cnpj']);
        }
        if(array_key_exists('created_at_ini',$conditions) && array_key_exists('created_at_end',$conditions)){
-            $query = $query->whereBetween('created_at',[$conditions['created_at_ini'],$conditions['created_at_end']]);
+            $query = $query->whereBetween('bussiness_units.created_at',[$conditions['created_at_ini'],$conditions['created_at_end']]);
        }
-       $query = $query->where('organization_id','=',auth()->user()->organization_id);
+       $query = $query->where('bussiness_units.organization_id','=',auth()->user()->organization_id);
 
        if($first){
+           if($serialize){
+               return $this->serialize($query->first());
+           }
            return $query->first();
        } else {
+           if($serialize){
+               return $this->serialize($query->get());
+           }
            return $query->get();
        }
     }
@@ -133,5 +152,45 @@ class BussinessUnitRepositoryConcrete implements IRepository,INotifer
     public function thisNotifier()
     {
        return $this;
+    }
+
+    public function serialize(mixed $data,string $type = 'json')
+    {
+        $dataBussiness = new Collection();
+        foreach ($data as $key => $value){
+            $bussinessSerialize = new stdClass();
+            $bussinessSerialize->id = $value->id;
+            $bussinessSerialize->uuid = $value->uuid;
+            $bussinessSerialize->company_name = $value->company_name;
+            $bussinessSerialize->fantasy_name = $value->fantasy_name;
+            $bussinessSerialize->cpf_cnpj = $value->cpf_cnpj;
+            $bussinessSerialize->address_id = $value->address_id;
+            $bussinessSerialize->address_uuid = $value->addressRelation->uuid;
+            $bussinessSerialize->country = $value->addressRelation->contry;
+            $bussinessSerialize->state = $value->addressRelation->street;
+            $bussinessSerialize->city = $value->addressRelation->city;
+            $bussinessSerialize->zipcode = $value->addressRelation->zipcode;
+            $bussinessSerialize->neighborhood = $value->addressRelation->neighborhood;
+            $bussinessSerialize->street = $value->addressRelation->street;
+            $bussinessSerialize->number = $value->addressRelation->number;
+            $bussinessSerialize->telphone = $value->addressRelation->telphone;
+            $bussinessSerialize->celphone = $value->addressRelation->celphone;
+            $bussinessSerialize->email = $value->addressRelation->email;
+            $bussinessSerialize->address_updated_at = $value->addressRelation->updated_at;
+            $bussinessSerialize->address_created_at = $value->addressRelation->created_at;
+            $bussinessSerialize->address_deleted_at = $value->addressRelation->deleted_at;
+            $bussinessSerialize->created_at = $value->created_at;
+            $bussinessSerialize->deleted_at = $value->deleted_at;
+            $bussinessSerialize->updated_at = $value->updated_at;
+            $dataBussiness->add($bussinessSerialize);
+        }
+
+        if($type == '' || $type == null){
+            return $dataBussiness;
+        } else if($type == 'md64'){
+            return base64_encode($bussinessSerialize);
+        } else if ($type == 'json'){
+            return $dataBussiness->jsonSerialize();
+        }
     }
 }

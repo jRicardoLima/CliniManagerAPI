@@ -19,7 +19,7 @@ class OcuppationRepositoryConcrete implements IRepository
         $this->model = App::make(ModelsFactory::class,['className' => Occupation::class]);
     }
 
-    public function findId($id,bool $uuid = false)
+    public function findId($id,bool $uuid = false,bool $serialize = false)
     {
         if(!$uuid){
             return  $this->model->where('id', $id)
@@ -32,7 +32,7 @@ class OcuppationRepositoryConcrete implements IRepository
         }
     }
 
-    public function findAll()
+    public function findAll(bool $serialize = false)
     {
         return $this->model->where('organization_id','=',auth()->user()->organization_id)->get();
     }
@@ -73,7 +73,7 @@ class OcuppationRepositoryConcrete implements IRepository
         }
     }
 
-    public function get(array $conditions, array $coluns = [], bool $join = false,bool $first = false)
+    public function get(array $conditions, array $coluns = [], bool $join = false,bool $first = false,bool $serialize = false)
     {
         $query = $this->model;
 

@@ -18,7 +18,7 @@ class AddressRepositoryConcrete implements IRepository,INotified
         $this->model = new Address();
     }
 
-    public function findId($id, bool $uuid = false)
+    public function findId($id, bool $uuid = false,bool $serialize = false)
     {
         if(!$uuid){
             return $this->model->where('id',$id)
@@ -31,7 +31,7 @@ class AddressRepositoryConcrete implements IRepository,INotified
         }
     }
 
-    public function findAll()
+    public function findAll(bool $serialize = false)
     {
         return $this->model->where('organization_id','=',auth()->user()->organization_id);
     }
@@ -98,7 +98,7 @@ class AddressRepositoryConcrete implements IRepository,INotified
         }
     }
 
-    public function get(array $conditions, array $coluns = [], bool $join = false, bool $first = false)
+    public function get(array $conditions, array $coluns = [], bool $join = false, bool $first = false,bool $serialize = false)
     {
         $query = $this->model();
 

@@ -8,6 +8,10 @@ function formatMoneyToBr($value,$decimals = 2,$decimalSeparator = '.',$thousands
     return number_format($value,$decimals,$decimalSeparator,$thousandsSeparator);
 }
 
-function mountParamns(string $keys,$values){
+function filterRequestAll($arrayData){
+    $collection = collect($arrayData);
 
+    $filtered = $collection->filter(fn($value,$key) =>  $value != null);
+
+    return $filtered;
 }

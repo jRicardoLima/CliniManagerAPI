@@ -72,12 +72,23 @@ class BussinessUnitsController extends Controller
     {
         try {
             DB::beginTransaction();
-            if($request->all() == null || $request->all() == ''){
-                $result = $this->bussinessRepository->findAll();
+            $data = filterRequestAll($request->all());
+            if($data == null || count($data) == 0){
+                $result = $this->bussinessRepository->findAll(true);
                 DB::commit();
                 return $this->success($result,'success',200);
             } else {
-
+                $coluns = [
+                    'bussiness_units.id',
+                    'bussiness_units.company_name',
+                    'bussiness_units.fantasy_name',
+                    'bussiness_units.cpf_cnpj',
+                    'adresses.telphone',
+                    'adresses.celphone',
+                ];
+                $result = $this->bussinessRepository->get($request->all(),join: true,serialize: false,first: false,coluns: $coluns);
+                DB::commit();
+                return $this->success($result,'success',200);
             }
         }catch (Exception $e){
             DB::rollBack();
