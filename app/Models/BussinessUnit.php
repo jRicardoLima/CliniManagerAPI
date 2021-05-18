@@ -52,6 +52,6 @@ class BussinessUnit extends Model
     //Relations
     public function addressRelation()
     {
-        return $this->hasOne(Address::class,'address_id','id');
+        return $this->hasOne(Address::class,'id','address_id');
     }
 }

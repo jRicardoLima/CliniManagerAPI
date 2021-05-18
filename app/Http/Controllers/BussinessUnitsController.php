@@ -75,13 +75,13 @@ class BussinessUnitsController extends Controller
             if($request->all() == null || $request->all() == ''){
                 $result = $this->bussinessRepository->findAll();
                 DB::commit();
-                var_dump($result);
-                exit();
                 return $this->success($result,'success',200);
+            } else {
+
             }
         }catch (Exception $e){
             DB::rollBack();
-            return $this->error('Error',480);
+            return $this->error('Error',480,$e->getMessage());
         }
     }
 }

@@ -7,3 +7,7 @@ function convertData($value,$format = 'd/m/Y'){
 function formatMoneyToBr($value,$decimals = 2,$decimalSeparator = '.',$thousandsSeparator = ','){
     return number_format($value,$decimals,$decimalSeparator,$thousandsSeparator);
 }
+
+function mountParamns(string $keys,$values){
+
+}
