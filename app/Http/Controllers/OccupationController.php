@@ -100,9 +100,9 @@ class OccupationController extends Controller
                     return $this->success([],'Função excluida com sucesso',200);
                 }
                 DB::rollBack();
-                return $this->success(['Erro ao excluir função'],215);
+                return $this->success([],'Função não pode ser excluida',215);
             }
-            return $this->success(['Erro id nulo'],215);
+            return $this->success([],'Erro id nulo',215);
         }catch (\Exception $e){
             DB::rollBack();
             return $this->error('Erro ao excluir função',480);

@@ -80,10 +80,32 @@ class BussinessUnitRepositoryConcrete implements IRepository,INotifer,Serializab
     {
         if(!$forceDelete){
             $bussiness = $this->findId($id);
-            return $bussiness->delete();
+
+            $param = new stdClass();
+            $param->id = $bussiness->address_id;
+            $param->forceDelete = false;
+
+            $ret = $this->notifier('deleteaddress',$param);
+            if($ret){
+                return $bussiness->delete();
+            } else{
+                return false;
+            }
+
         } else {
             $bussiness = $this->findId($id);
-            return $bussiness->forceDelete();
+
+            $param = new stdClass();
+            $param->id = $bussiness->address_id;
+            $param->forceDelete = false;
+
+            $ret = $this->notifier('deleteaddress',$param);
+
+            if($ret){
+                return $bussiness->forceDelete();
+            } else {
+                return false;
+            }
         }
     }
 
@@ -96,7 +118,7 @@ class BussinessUnitRepositoryConcrete implements IRepository,INotifer,Serializab
         }
 
        if($join){
-           $query = $query->join('adresses','bussiness_units.address_id','=','adresses.id');
+           $query = $query->with('addressRelation');
        }
 
        if(array_key_exists('id',$conditions)){
@@ -144,6 +166,9 @@ class BussinessUnitRepositoryConcrete implements IRepository,INotifer,Serializab
             case 'saveaddress':
                 $id = $serviceDispatch->dispatchSaveAddress($param);
                 return $id;
+            case 'deleteaddress':
+                $ret = $serviceDispatch->dispatchDeleteAddress($param);
+                return $ret;
             default:
                 throw new Exception('Method not found');
         }
@@ -167,7 +192,7 @@ class BussinessUnitRepositoryConcrete implements IRepository,INotifer,Serializab
             $bussinessSerialize->address_id = $value->address_id;
             $bussinessSerialize->address_uuid = $value->addressRelation->uuid;
             $bussinessSerialize->country = $value->addressRelation->contry;
-            $bussinessSerialize->state = $value->addressRelation->street;
+            $bussinessSerialize->state = $value->addressRelation->state;
             $bussinessSerialize->city = $value->addressRelation->city;
             $bussinessSerialize->zipcode = $value->addressRelation->zipcode;
             $bussinessSerialize->neighborhood = $value->addressRelation->neighborhood;

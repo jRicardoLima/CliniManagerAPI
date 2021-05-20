@@ -9,8 +9,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
-use Psy\Util\Str;
-
 class BussinessUnitsController extends Controller
 {
     private $bussinessRepository;
@@ -73,26 +71,42 @@ class BussinessUnitsController extends Controller
         try {
             DB::beginTransaction();
             $data = filterRequestAll($request->all());
+
             if($data == null || count($data) == 0){
+
                 $result = $this->bussinessRepository->findAll(true);
                 DB::commit();
                 return $this->success($result,'success',200);
             } else {
-                $coluns = [
-                    'bussiness_units.id',
-                    'bussiness_units.company_name',
-                    'bussiness_units.fantasy_name',
-                    'bussiness_units.cpf_cnpj',
-                    'adresses.telphone',
-                    'adresses.celphone',
-                ];
-                $result = $this->bussinessRepository->get($request->all(),join: true,serialize: false,first: false,coluns: $coluns);
+                $result = $this->bussinessRepository->get($data,join: true,serialize: true);
                 DB::commit();
                 return $this->success($result,'success',200);
             }
         }catch (Exception $e){
             DB::rollBack();
             return $this->error('Error',480,$e->getMessage());
+        }
+    }
+
+    public function delete($id)
+    {
+        try {
+            DB::beginTransaction();
+            if($id != null && $id != "" ){
+                $ret = $this->bussinessRepository->remove($id);
+                DB::commit();
+                if($ret){
+                    return $this->success([],'Unidade excluida com sucesso',200);
+                } else {
+                    DB::rollBack();
+                    return $this->success([],'Unidade não pode ser excluida',215);
+                }
+            } else{
+                $this->success([],'Erro id nulo',215);
+            }
+        }catch (Exception $e){
+            DB::rollBack();
+            $this->error('Erro ao excluir unidade',480);
         }
     }
 }

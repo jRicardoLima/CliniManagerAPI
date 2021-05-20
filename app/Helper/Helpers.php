@@ -13,5 +13,5 @@ function filterRequestAll($arrayData){
 
     $filtered = $collection->filter(fn($value,$key) =>  $value != null);
 
-    return $filtered;
+    return $filtered->toArray();
 }
