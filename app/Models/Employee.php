@@ -22,17 +22,21 @@ class Employee extends Model
         'occupation_id',
         'address_id',
         'bussiness_id',
-        'organization_id'
     ];
 
     protected $hidden = [
-        'id'
+        'organization_id',
     ];
 
     //Relations
     public function userRelation()
     {
         return $this->hasOne(User::class,'employee_id','id');
+    }
+
+    public function bussinessRelation()
+    {
+        return $this->belongsTo(BussinessUnit::class,'bussiness_id','id');
     }
 
     public function organizationRelation()

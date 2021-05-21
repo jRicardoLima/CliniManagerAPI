@@ -160,7 +160,10 @@ return [
             'required' => 'Bairro é um campo obrigatório',
         ],
         'street' => [
-            'required' => 'Rua é um campo obriagtório'
+            'required' => 'Rua é um campo obrigatório'
+        ],
+        'id' => [
+            'required' => 'Código é obrigatório'
         ]
     ],
 

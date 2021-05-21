@@ -68,7 +68,6 @@ class AddressRepositoryConcrete implements IRepository,INotified
     {
         $address = $this->findId($id);
 
-        $address->uuid = $data->uuid;
         $address->contry = $data->country;
         $address->state = $data->state;
         $address->zipcode = $data->zipcode;

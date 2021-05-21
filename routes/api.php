@@ -46,6 +46,7 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
         //BussinessUnits
         Route::post('/admin/bussiness-units/store',[BussinessUnitsController::class,'store']);
         Route::post('/admin/bussiness-units/search',[BussinessUnitsController::class,'search']);
+        Route::put('/admin/bussiness-units/{id}',[BussinessUnitsController::class,'update']);
         Route::delete('/admin/bussiness-units/{id}',[BussinessUnitsController::class,'delete']);
         //End bussinessUnits
     });

@@ -53,6 +53,7 @@ class BussinessUnitsController extends Controller
                 if($ret){
                     return $this->success('','Unidade cadastrada com sucesso',200);
                 } else{
+                    DB::rollBack();
                     return $this->success('','Erro ao cadastrar a unidade',200);
                 }
 
@@ -88,11 +89,61 @@ class BussinessUnitsController extends Controller
         }
     }
 
+    public function update($id,Request $request)
+    {
+
+        try {
+            $this->validate($request,[
+                'id' => 'required',
+                'company_name' => 'required|min:3',
+                'fantasy_name' => 'required|min:3',
+                'cpf_cnpj' => 'required',
+                'city' => 'required',
+                'neighborhood' => 'required',
+                'street' => 'required',
+            ]);
+            DB::beginTransaction();
+                $bussiness = new \stdClass();
+
+                $bussiness->company_name = $request->company_name;
+                $bussiness->fantasy_name = $request->fantasy_name;
+                $bussiness->cpf_cnpj = $request->cpf_cnpj;
+                $bussiness->country = $request->country;
+                $bussiness->state = $request->state;
+                $bussiness->zipcode = $request->zipcode;
+                $bussiness->city = $request->city;
+                $bussiness->neighborhood = $request->neighborhood;
+                $bussiness->street = $request->street;
+                $bussiness->number = $request->number;
+                $bussiness->telphone = $request->telphone;
+                $bussiness->celphone = $request->celphone;
+                $bussiness->email = $request->email;
+                $bussiness->observation = $request->observation;
+                $bussiness->address_id = $request->address_id;
+
+                $ret = $this->bussinessRepository->update($id,$bussiness);
+            DB::commit();
+
+            if($ret){
+                return $this->success([],'Unidade atualizado com sucesso',200);
+            } else{
+                DB::rollBack();
+                return $this->success([],'Erro ao atualizar unidade',200);
+            }
+        }catch (ValidationException $e){
+            DB::rollBack();
+            return $this->success($e->errors(),'Erro de validação',215);
+        } catch (Exception $e){
+            DB::rollBack();
+            return $this->error('Erro ao atualizar',480,$e->getMessage());
+        }
+    }
+
     public function delete($id)
     {
         try {
-            DB::beginTransaction();
             if($id != null && $id != "" ){
+                DB::beginTransaction();
                 $ret = $this->bussinessRepository->remove($id);
                 DB::commit();
                 if($ret){

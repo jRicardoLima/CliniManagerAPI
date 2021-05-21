@@ -54,4 +54,9 @@ class BussinessUnit extends Model
     {
         return $this->hasOne(Address::class,'id','address_id');
     }
+
+    public function employeeRelation()
+    {
+        return $this->hasMany(Employee::class,'bussiness_id','id');
+    }
 }

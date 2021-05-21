@@ -73,7 +73,18 @@ class BussinessUnitRepositoryConcrete implements IRepository,INotifer,Serializab
 
     public function update($id, object $data)
     {
+        $bussiness = $this->findId($id);
 
+        $bussiness->company_name = $data->company_name;
+        $bussiness->fantasy_name = $data->fantasy_name;
+        $bussiness->cpf_cnpj = $data->cpf_cnpj;
+        $ret = $this->notifier('updateaddress',$data);
+
+        if($ret){
+           return $bussiness->save();
+        } else {
+            return false;
+        }
     }
 
     public function remove($id, bool $forceDelete = false)
@@ -118,7 +129,7 @@ class BussinessUnitRepositoryConcrete implements IRepository,INotifer,Serializab
         }
 
        if($join){
-           $query = $query->with('addressRelation');
+           $query = $query->with(['addressRelation','employeeRelation']);
        }
 
        if(array_key_exists('id',$conditions)){
@@ -166,6 +177,10 @@ class BussinessUnitRepositoryConcrete implements IRepository,INotifer,Serializab
             case 'saveaddress':
                 $id = $serviceDispatch->dispatchSaveAddress($param);
                 return $id;
+            case 'updateaddress':
+
+                $ret = $serviceDispatch->dispacthUpdateAddress($param->address_id,$param);
+                return $ret;
             case 'deleteaddress':
                 $ret = $serviceDispatch->dispatchDeleteAddress($param);
                 return $ret;

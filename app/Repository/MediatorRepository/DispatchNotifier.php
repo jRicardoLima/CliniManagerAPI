@@ -27,6 +27,11 @@ final class DispatchNotifier extends ManagerMediator
         return $this->class->save($obj,true);
     }
 
+    public function dispacthUpdateAddress($id,object $obj)
+    {
+        return $this->class->update($id,$obj);
+    }
+
     public function dispatchDeleteAddress(object $param)
     {
         return $this->class->remove($param->id,$param->forceDelete);
