@@ -79,7 +79,7 @@ class BussinessUnitsController extends Controller
                 DB::commit();
                 return $this->success($result,'success',200);
             } else {
-                $result = $this->bussinessRepository->get($data,join: true,serialize: true);
+                $result = $this->bussinessRepository->get($data,[],false,false,true);
                 DB::commit();
                 return $this->success($result,'success',200);
             }
@@ -158,6 +158,23 @@ class BussinessUnitsController extends Controller
         }catch (Exception $e){
             DB::rollBack();
             $this->error('Erro ao excluir unidade',480);
+        }
+    }
+
+    public function listBussiness()
+    {
+        try {
+            DB::beginTransaction();
+                $coluns=[
+                    'id',
+                    'fantasy_name'
+                ];
+                $result = $this->bussinessRepository->get([],$coluns);
+            DB::commit();
+            return $this->success($result,'success',200);
+        }catch (Exception $e){
+            DB::rollBack();
+            $this->error('Erro ao listar unidades',480);
         }
     }
 }

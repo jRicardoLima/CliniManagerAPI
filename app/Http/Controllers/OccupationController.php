@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Repository\Repositories\OccupationRepository;
 use App\Repository\RepositoryFactory;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
@@ -24,7 +25,7 @@ class OccupationController extends Controller
         try {
             DB::beginTransaction();
             if($request->name == null || $request->name == ""){
-                $result = $this->occupationRepository->findAll();
+                    $result = $this->occupationRepository->findAll();
                 DB::commit();
                 return $this->success($result,'success',200);
             } else {
@@ -32,7 +33,7 @@ class OccupationController extends Controller
                 DB::commit();
                 return $this->success($result,'success',200);
             }
-        }catch(\Exception $e){
+        }catch(Exception $e){
             DB::rollBack();
             return $this->error('Error',480);
         }
@@ -46,15 +47,15 @@ class OccupationController extends Controller
             ]);
 
             DB::beginTransaction();
-            $occ = new \stdClass();
-            $occ->name = $request->name;
-            $ret = $this->occupationRepository->save($occ,true);
+                $occ = new \stdClass();
+                $occ->name = $request->name;
+                $ret = $this->occupationRepository->save($occ,true);
             DB::commit();
             return $this->success(['occupation' => $ret],'Função cadastrada com sucesso',200);
         }catch (ValidationException $e){
             DB::rollBack();
             return $this->success($e->errors(),'Erro de validação',215);
-        } catch (\Exception $e){
+        } catch (Exception $e){
             DB::rollBack();
             return $this->error('Error',480,$e->getMessage());
         }
@@ -83,7 +84,7 @@ class OccupationController extends Controller
         }catch (ValidationException $e){
             DB::rollBack();
             return $this->success($e->errors(),'Dados incorretos',215);
-        }catch (\Exception $e){
+        }catch (Exception $e){
             DB::rollBack();
             return  $this->error('Erro ao atualizar função',480);
         }
@@ -103,9 +104,26 @@ class OccupationController extends Controller
                 return $this->success([],'Função não pode ser excluida',215);
             }
             return $this->success([],'Erro id nulo',215);
-        }catch (\Exception $e){
+        }catch (Exception $e){
             DB::rollBack();
             return $this->error('Erro ao excluir função',480);
+        }
+    }
+
+    public function listOccupation()
+    {
+        try{
+            DB::beginTransaction();
+                $coluns = [
+                    'id',
+                    'name'
+                ];
+                $result = $this->occupationRepository->get([],$coluns);
+            DB::commit();
+            return $this->success($result,'success',200);
+        }catch(Exception $e){
+            DB::rollBack();
+            return $this->error('Erro ao listar funções',480);
         }
     }
 }

@@ -6,5 +6,5 @@ namespace App\Repository;
 
 interface Serializable
 {
-    public function serialize(mixed $data, string $type = 'json');
+    public function serialize(mixed $data, string $type = 'json',bool $first = false);
 }

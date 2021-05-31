@@ -61,4 +61,9 @@ class Address extends Model
     {
         return $this->belongsTo(BussinessUnit::class,'address_id','id');
     }
+
+    public function employeeRelation()
+    {
+        return $this->belongsTo(Employee::class,'address_id','id');
+    }
 }

@@ -6,8 +6,8 @@ namespace App\Repository;
 
 interface IRepository
 {
-    public function findId($id,bool $uuid = false,bool $serialize = false);
-    public function findAll(bool $serialize = false);
+    public function findId($id,bool $uuid = false,bool $join = false,bool $serialize = false);
+    public function findAll(bool $join = false,bool $serialize = false);
     public function save(object $obj, bool $returnObject = false);
     public function update($id,object $data);
     public function remove($id,bool $forceDelete = false);

@@ -29,9 +29,14 @@ class Employee extends Model
     ];
 
     //Relations
+
+    public function addressRelation()
+    {
+        return $this->hasOne(Address::class,'id','address_id');
+    }
     public function userRelation()
     {
-        return $this->hasOne(User::class,'employee_id','id');
+        return $this->belongsTo(User::class,'employee_id','id');
     }
 
     public function bussinessRelation()

@@ -25,7 +25,7 @@ class BussinessUnitRepositoryConcrete implements IRepository,INotifer,Serializab
         $this->model = App::make(ModelsFactory::class,['className' => BussinessUnit::class]);
     }
 
-    public function findId($id, bool $uuid = false,bool $serialize = false)
+    public function findId($id, bool $uuid = false,bool $join = false,bool $serialize = false)
     {
         if(!$uuid){
             return $this->model->where('id',$id)
@@ -40,7 +40,7 @@ class BussinessUnitRepositoryConcrete implements IRepository,INotifer,Serializab
         }
     }
 
-    public function findAll(bool $serialize = false)
+    public function findAll(bool $join = false,bool $serialize = false)
     {
         $ret = $this->model->where('organization_id','=',auth()->user()->organization_id)->with('addressRelation')->get();
         if($serialize){
@@ -108,7 +108,7 @@ class BussinessUnitRepositoryConcrete implements IRepository,INotifer,Serializab
 
             $param = new stdClass();
             $param->id = $bussiness->address_id;
-            $param->forceDelete = false;
+            $param->forceDelete = true;
 
             $ret = $this->notifier('deleteaddress',$param);
 
@@ -167,7 +167,7 @@ class BussinessUnitRepositoryConcrete implements IRepository,INotifer,Serializab
         return $this->model;
     }
 
-    public function notifier(string $methodNotifier,mixed $param = null)
+    public function notifier(string $methodNotifier,$param = null)
     {
         $serviceDispatch = App::make(DispatchNotifier::class,['classNotified' => AddressRepositoryConcrete::class,'classNotifier' => BussinessUnitRepositoryConcrete::class]);
         if(is_null($param)){
@@ -194,7 +194,7 @@ class BussinessUnitRepositoryConcrete implements IRepository,INotifer,Serializab
        return $this;
     }
 
-    public function serialize(mixed $data,string $type = 'json')
+    public function serialize($data,string $type = 'json',bool $first = false)
     {
         $dataBussiness = new Collection();
         foreach ($data as $key => $value){
