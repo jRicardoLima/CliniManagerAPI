@@ -164,6 +164,24 @@ return [
         ],
         'id' => [
             'required' => 'Código é obrigatório'
+        ],
+        'type' => [
+            'required' => 'Tipo de funcionário é um campo obrigatório',
+            'not_in' => 'Selecione o tipo de funcionário'
+        ],
+        'occupation_id' => [
+            'required' => 'Função é um obrigatório',
+            'not_in' => 'Selecione uma função'
+        ],
+        'bussiness_id' => [
+            'required' => 'Unidade é um campo obrigatório',
+            'not_in' => 'Selecione uma unidade'
+        ],
+        'professional_register' => [
+            'required_if' => 'Registro profissional é um campo obrigatório'
+        ],
+        'birth_date' => [
+            'required' => 'Data de nascimento é um campo obrigatório'
         ]
     ],
 

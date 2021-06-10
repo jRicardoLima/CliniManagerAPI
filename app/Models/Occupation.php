@@ -23,6 +23,13 @@ class Occupation extends Model
       'organization_id'
     ];
 
+
+    //Relations
+    public function employee_relation()
+    {
+        return $this->hasOne(Employee::class,'occupation_id','id');
+    }
+
     //Accessors and Mutators
     public function getCreatedAtAttribute($value)
     {

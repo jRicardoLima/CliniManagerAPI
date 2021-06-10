@@ -19,8 +19,8 @@ class CreateEmployeeTable extends Migration
             $table->string('name');
             $table->date('birth_date')->nullable();
             $table->string('cpf_cnpj');
-            $table->enum('type',['health_professional','standard_employee']);
-            $table->double('salary',5,2);
+            $table->string('type');
+            $table->double('salary',10,4)->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

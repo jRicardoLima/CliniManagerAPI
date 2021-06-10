@@ -14,7 +14,7 @@ class AddColumEmployeeTable extends Migration
     public function up()
     {
         Schema::table('employee', function (Blueprint $table) {
-            $table->string('professional_register')->after('salary');
+            $table->string('professional_register')->after('salary')->nullable();
         });
     }
 

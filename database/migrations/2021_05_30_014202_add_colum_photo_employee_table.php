@@ -14,7 +14,7 @@ class AddColumPhotoEmployeeTable extends Migration
     public function up()
     {
         Schema::table('employee', function (Blueprint $table) {
-            $table->string('photo')->after('professional_register');
+            $table->string('photo')->nullable()->after('professional_register');
         });
     }
 

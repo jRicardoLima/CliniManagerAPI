@@ -42,17 +42,17 @@ class AddressRepositoryConcrete implements IRepository,INotified
         $address = $this->model;
 
         $address->uuid = Str::uuid();
-        $address->contry = $obj->country;
+        $address->contry = (isset($obj->country) && $obj->country != null) ? $obj->country : null;
         $address->state = $obj->state;
-        $address->zipcode = $obj->zipcode;
+        $address->zipcode = (isset($obj->zipcode) && $obj->zipcode != null) ? $obj->zipcode : null;
         $address->city = $obj->city;
         $address->neighborhood = $obj->neighborhood;
         $address->street = $obj->street;
-        $address->number = $obj->number;
-        $address->telphone = $obj->telphone;
-        $address->celphone = $obj->celphone;
-        $address->email = $obj->email;
-        $address->observation = $obj->observation;
+        $address->number = (isset($obj->number) && $obj->number != null) ? $obj->number : null;
+        $address->telphone = (isset($obj->telphone) && $obj->telphone != null) ? $obj->telphone : null;
+        $address->celphone = (isset($obj->celphone) && $obj->celphone != null) ? $obj->celphone : null;
+        $address->email = (isset($obj->email) && $obj->email != null) ? $obj->email : null;
+        $address->observation = (isset($obj->observation) && $obj->observation != null) ? $obj->observation : null;
         $address->organization_id = auth()->user()->organization_id;
 
         $ret = $address->save();
@@ -68,20 +68,19 @@ class AddressRepositoryConcrete implements IRepository,INotified
     {
         $address = $this->findId($id);
 
-        $address->contry = $data->country;
-        $address->state = $data->state;
-        $address->zipcode = $data->zipcode;
+        $address->contry = (isset($data->country) && $data->country != null) ? $data->country : null;
+        $address->state = (isset($data->state) && $data->state != null) ? $data->state : null;
+        $address->zipcode = (isset($data->zipcode) && $data->zipcode != null) ? $data->zipcode : null;
         $address->city = $data->city;
         $address->neighborhood = $data->neighborhood;
         $address->street = $data->street;
-        $address->number = $data->number;
-        $address->telphone = $data->telphone;
-        $address->celphone = $data->celphone;
-        $address->email = $data->email;
-        $address->observation = $data->observation;
+        $address->number = (isset($data->number) && $data->number != null) ? $data->number : null;
+        $address->telphone = (isset($data->telphone) && $data->telphone != null) ? $data->telphone : null;
+        $address->celphone = (isset($data->celphone) && $data->celphone != null) ? $data->celphone : null;
+        $address->email = (isset($data->email) && $data->email != null) ? $data->email : null;
+        $address->observation = (isset($data->observation) && $data->observation != null) ? $data->observation : null;
 
         return $address->save();
-
     }
 
     public function remove($id, bool $forceDelete = false)

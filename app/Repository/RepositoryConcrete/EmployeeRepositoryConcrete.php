@@ -95,7 +95,7 @@ class EmployeeRepositoryConcrete implements IRepository,INotifer,Serializable
                        ->where('organization_id','=',auth()->user()->organization_id);
 
         if($serialize){
-            return $this->serialize($query,null);
+            return $this->serialize($query->get(),'');
         } else {
             return $query;
         }
@@ -107,14 +107,16 @@ class EmployeeRepositoryConcrete implements IRepository,INotifer,Serializable
 
         $employee->uuid = Str::uuid();
         $employee->name = $obj->name;
-        $employee->birth_data = $obj->birth_data;
+        $employee->birth_date = $obj->birth_date;
         $employee->cpf_cnpj = $obj->cpf_cnpj;
         $employee->type = $obj->type;
-        $employee->salary = $obj->salary;
-        $employee->professional_register = $obj->professinal_register;
+        $employee->salary = (isset($obj->salary) && $obj->salary != null) ? formatMoneyToSql($obj->salary) : null;
+        $employee->professional_register = (isset($obj->professional_register) && $obj->professional_register != null) ? $obj->professional_register : null;
+        $employee->photo = (isset($obj->file) && $obj->file != null) ? $obj->file : null;
+        $employee->occupation_id = $obj->occupation_id;
         $employee->address_id = $this->notifier('saveaddress',$obj)->id;
         $employee->bussiness_id = $obj->bussiness_id;
-        $employee->organzation_id = auth()->user()->organization_id;
+        $employee->organization_id = auth()->user()->organization_id;
 
         $ret = $employee->save();
         if($returnObject){
@@ -131,12 +133,17 @@ class EmployeeRepositoryConcrete implements IRepository,INotifer,Serializable
         $employee = $this->findId($id);
 
         $employee->name = $data->name;
-        $employee->birth_data = $data->birth_data;
+        $employee->birth_date = convertDataToSql($data->birth_date);
         $employee->cpf_cnpj = $data->cpf_cnpj;
         $employee->type = $data->type;
-        $employee->salary = $data->salary;
-        $employee->professional_register = $data->professinal_register;
+        $employee->salary = (isset($data->salary) && $data->salary != null) ? formatMoneyToSql($data->salary) : null;
+        $employee->professional_register = (isset($data->professinal_register) && $data->professinal_register != null) ? $data->professinal_register : null;
+        if(isset($data->file) && $data->file != null){
+            $employee->photo = $data->file;
+        }
+        $employee->occupation_id = $data->occupation_id;
         $ret = $this->notifier('updateaddress',$data);
+        $employee->bussiness_id = $data->bussiness_id;
 
         if($ret){
            return $employee->save();
@@ -201,8 +208,8 @@ class EmployeeRepositoryConcrete implements IRepository,INotifer,Serializable
         if(array_key_exists('birthDate',$conditions)){
             $query = $query->where('employee.birth_date','=',$conditions['birthDate']);
         }
-        if(array_key_exists('cpfCnpj',$conditions)){
-            $query = $query->where('employee.cpf_cnpj','=',$conditions['cpfCnpj']);
+        if(array_key_exists('cpf_cnpj',$conditions)){
+            $query = $query->where('employee.cpf_cnpj','=',$conditions['cpf_cnpj']);
         }
         if(array_key_exists('type',$conditions)){
             $query = $query->where('employee.type','=',$conditions['type']);
@@ -210,17 +217,27 @@ class EmployeeRepositoryConcrete implements IRepository,INotifer,Serializable
         if(array_key_exists('salary',$conditions)){
             $query = $query->where('employee.salary','=',$conditions['salary']);
         }
-        if(array_key_exists('bussinessId',$conditions)){
-            $query = $query->where('employee.bussiness_id','=',$conditions['bussinessId']);
+        if(array_key_exists('professional_register',$conditions)){
+            $query = $query->where('employee.professional_register','=',$conditions['professional_register']);
         }
+        if(array_key_exists('photo',$conditions)){
+            $query = $query->where('employee.photo','=',$conditions['photo']);
+        }
+        if(array_key_exists('bussiness_id',$conditions)){
+            $query = $query->where('employee.bussiness_id','=',$conditions['bussiness_id']);
+        }
+        if(array_key_exists('occupation_id',$conditions)){
+            $query = $query->where('employee.occupation_id', '=',$conditions['occupation_id']);
+        }
+
         if($first){
             if($serialize){
-                return $this->serialize($query->first(),null,true);
+                return $this->serialize($query->first(),'',true);
             }
             return $query->first();
         } else {
             if($serialize){
-                return $this->serialize($query->get(),null);
+                return $this->serialize($query->get(),'');
             }
             return $query->get();
         }
@@ -233,6 +250,7 @@ class EmployeeRepositoryConcrete implements IRepository,INotifer,Serializable
 
     public function serialize($data, string $type = 'json',bool $first = false)
     {
+
         if(!$first){
             $dataEmployee = new Collection();
 
@@ -242,18 +260,19 @@ class EmployeeRepositoryConcrete implements IRepository,INotifer,Serializable
                 $employee->id = $value->id;
                 $employee->uuid = $value->uuid;
                 $employee->name = $value->name;
-                $employee->birth_data = $value->birth_data;
+                $employee->birth_date = $value->birth_date;
                 $employee->cpf_cnpj = $value->cpf_cnpj;
                 $employee->type = $value->type;
                 $employee->salary = $value->salary;
-                $employee->professional_register = $value->professinal_register;
+                $employee->professional_register = $value->professional_register;
+                $employee->photo = $value->photo;
                 $employee->created_at = $value->created_at;
                 $employee->updated_at = $value->updated_at;
                 $employee->deleted_at = $value->deleted_at;
 
                 $employee->address_id = $value->address_id;
                 $employee->address_uuid = $value->addressRelation->address_uuid;
-                $employee->country = $value->addressRelation->country;
+                $employee->country = $value->addressRelation->contry;
                 $employee->state = $value->addressRelation->state;
                 $employee->city = $value->addressRelation->city;
                 $employee->zipcode = $value->addressRelation->zipcode;
@@ -271,17 +290,21 @@ class EmployeeRepositoryConcrete implements IRepository,INotifer,Serializable
                 $employee->bussiness_uuid = $value->bussinessRelation->uuid;
                 $employee->company_name = $value->bussinessRelation->company_name;
                 $employee->fantasy_name = $value->bussinessRelation->fantasy_name;
-                $employee->cpf_cnpj = $value->bussinessRelation->cpf_cnpj;
+                $employee->bussiness_cpf_cnpj = $value->bussinessRelation->cpf_cnpj;
                 $employee->bussiness_created_at = $value->bussinessRelation->created_at;
                 $employee->bussienss_updated_at = $value->bussinessRelation->update_at;
                 $employee->bussiness_deleted_at = $value->bussinessRelation->deleted_at;
 
-                $employee->user_id = $value->userRelation->id;
-                $employee->user_name = $value->userRelation->user_name;
-                $employee->user_created_at = $value->userRelation->createda_at;
-                $employee->user_updated_at = $value->userRelation->updated_at;
-                $employee->user_deleted_at = $value->userRelation->deleted_at;
+                $employee->occupation_id = $value->occupation_id;
+                $employee->occupation_name = $value->occupationRelation->name;
 
+                if($value->userRelation != null){
+                    $employee->user_id = $value->userRelation->id;
+                    $employee->user_name = $value->userRelation->user_name;
+                    $employee->user_created_at = $value->userRelation->createda_at;
+                    $employee->user_updated_at = $value->userRelation->updated_at;
+                    $employee->user_deleted_at = $value->userRelation->deleted_at;
+                }
                 $dataEmployee->add($employee);
             }
             if($type == '' || $type == null){
@@ -296,17 +319,19 @@ class EmployeeRepositoryConcrete implements IRepository,INotifer,Serializable
             $employee->id =$data->id;
             $employee->uuid =$data->uuid;
             $employee->name = $data->name;
-            $employee->birth_data = $data->birth_data;
+            $employee->birth_date = $data->birth_date;
             $employee->cpf_cnpj = $data->cpf_cnpj;
             $employee->type = $data->type;
             $employee->salary = $data->salary;
+            $employee->professional_register = $data->professional_register;
+            $employee->photo = $data->photo;
             $employee->created_at = $data->created_at;
             $employee->updated_at = $data->updated_at;
             $employee->deleted_at = $data->deleted_at;
 
             $employee->address_id = $data->address_id;
             $employee->address_uuid = $data->addressRealtion->address_uuid;
-            $employee->country = $data->addressRealtion->country;
+            $employee->country = $data->addressRealtion->contry;
             $employee->state = $data->addressRealtion->state;
             $employee->city = $data->addressRealtion->city;
             $employee->zipcode = $data->addressRealtion->zipcode;
@@ -324,16 +349,19 @@ class EmployeeRepositoryConcrete implements IRepository,INotifer,Serializable
             $employee->bussiness_uuid = $data->bussinessRelation->uuid;
             $employee->company_name = $data->bussinessRelation->company_name;
             $employee->fantasy_name = $data->bussinessRelation->fantasy_name;
-            $employee->cpf_cnpj = $data->bussinessRelation->cpf_cnpj;
+            $employee->bussiness_cpf_cnpj = $data->bussinessRelation->cpf_cnpj;
             $employee->bussiness_created_at = $data->bussinessRelation->created_at;
             $employee->bussienss_updated_at = $data->bussinessRelation->update_at;
             $employee->bussiness_deleted_at = $data->bussinessRelation->deleted_at;
 
-            $employee->user_id = $data->userRelation->id;
-            $employee->user_name = $data->userRelation->user_name;
-            $employee->user_created_at = $data->userRelation->createda_at;
-            $employee->user_updated_at = $data->userRelation->updated_at;
-            $employee->user_deleted_at = $data->userRelation->deleted_at;
+            if($data->userRelation != null){
+                $employee->user_id = $data->userRelation->id;
+                $employee->user_name = $data->userRelation->user_name;
+                $employee->user_created_at = $data->userRelation->createda_at;
+                $employee->user_updated_at = $data->userRelation->updated_at;
+                $employee->user_deleted_at = $data->userRelation->deleted_at;
+            }
+
 
             if($type == '' || $type == null){
                 return $employee;

@@ -16,12 +16,16 @@ class Employee extends Model
     protected $fillable = [
         'uuid',
         'name',
-        'birt_date',
+        'birth_date',
+        'cpf_cnpj',
         'type',
         'salary',
+        'professional_register',
+        'photo',
         'occupation_id',
         'address_id',
         'bussiness_id',
+        'organization_id'
     ];
 
     protected $hidden = [
@@ -44,6 +48,11 @@ class Employee extends Model
         return $this->belongsTo(BussinessUnit::class,'bussiness_id','id');
     }
 
+    public function occupationRelation()
+    {
+        return $this->belongsTo(Occupation::class,'occupation_id','id');
+    }
+
     public function organizationRelation()
     {
         return $this->belongsTo(Organization::class,'organization_id','id');
@@ -63,21 +72,10 @@ class Employee extends Model
 
     public function getTypeAttribute($value)
     {
-        if($value === 'health_professional'){
+        if($value == 'health_professional'){
             return 'Profissional de saúde';
         } else {
             return 'Funcionario padrão';
         }
     }
-
-    public function setTypeAttribute($value)
-    {
-        if($value === 'Profissional de saúde'){
-            $this->attributes['type'] = 'health_professional';
-        } else {
-            $this->attributes['type'] = 'standard_employee';
-        }
-    }
-
-
 }

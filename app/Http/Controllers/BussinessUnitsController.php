@@ -75,11 +75,11 @@ class BussinessUnitsController extends Controller
 
             if($data == null || count($data) == 0){
 
-                $result = $this->bussinessRepository->findAll(true);
+                $result = $this->bussinessRepository->findAll(true,true);
                 DB::commit();
                 return $this->success($result,'success',200);
             } else {
-                $result = $this->bussinessRepository->get($data,[],false,false,true);
+                $result = $this->bussinessRepository->get($data,[],true,false,true);
                 DB::commit();
                 return $this->success($result,'success',200);
             }
@@ -135,7 +135,7 @@ class BussinessUnitsController extends Controller
             return $this->success($e->errors(),'Erro de validação',215);
         } catch (Exception $e){
             DB::rollBack();
-            return $this->error('Erro ao atualizar',480,$e->getMessage());
+            return $this->error('Erro ao atualizar',480,[]);
         }
     }
 

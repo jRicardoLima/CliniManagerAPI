@@ -58,6 +58,7 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
         Route::post('/admin/employee/search',[EmployeeController::class,'search']);
         Route::put('admin/employee/{id}',[EmployeeController::class,'update']);
         Route::delete('admin/employee/{id}',[EmployeeController::class,'delete']);
+        Route::get('admin/employee/image/{id}',[EmployeeController::class,'photoUser']);
         //End employee
     });
 });
