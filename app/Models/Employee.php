@@ -53,6 +53,12 @@ class Employee extends Model
         return $this->belongsTo(Occupation::class,'occupation_id','id');
     }
 
+    public function specialtieRelationPivot()
+    {
+        return $this->belongsToMany(Specialtie::class,'employee_specialties',
+                                   'employee_id','specialtie_id');
+    }
+
     public function organizationRelation()
     {
         return $this->belongsTo(Organization::class,'organization_id','id');

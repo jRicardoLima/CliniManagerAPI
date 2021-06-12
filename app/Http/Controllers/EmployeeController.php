@@ -185,4 +185,17 @@ class EmployeeController extends Controller
         return $this->error('ID é nulo',480,[]);
     }
 
+    public function listEmployee($type)
+    {
+        if(!is_null($type) && $type !== ""){
+            $employees = $this->employeeRepository->get(['type' => $type]);
+
+            if(!is_null($employees) && $employees != ""){
+                return $this->success(['employees' => $employees],'success',200);
+            }
+            return $this->success([],'Profissionais de saude não encontrado',215);
+        }
+        return $this->error('Tipo é nulo',480);
+    }
+
 }

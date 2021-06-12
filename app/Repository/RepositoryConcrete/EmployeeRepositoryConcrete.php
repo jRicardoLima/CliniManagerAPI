@@ -59,7 +59,7 @@ class EmployeeRepositoryConcrete implements IRepository,INotifer,Serializable
             $join = true;
         }
         if($join){
-            $query = $query->with(['bussinessRelation','userRelation']);
+            $query = $query->with(['bussinessRelation','userRelation','specialtieRelationPivot']);
         }
 
         if(!$uuid){
@@ -89,7 +89,7 @@ class EmployeeRepositoryConcrete implements IRepository,INotifer,Serializable
         }
 
         if($join){
-            $query = $query->with(['bussinessRelation','userRelation']);
+            $query = $query->with(['bussinessRelation','userRelation','specialtieRelationPivot']);
         }
         $query = $query->with('addressRelation')
                        ->where('organization_id','=',auth()->user()->organization_id);
@@ -137,7 +137,7 @@ class EmployeeRepositoryConcrete implements IRepository,INotifer,Serializable
         $employee->cpf_cnpj = $data->cpf_cnpj;
         $employee->type = $data->type;
         $employee->salary = (isset($data->salary) && $data->salary != null) ? formatMoneyToSql($data->salary) : null;
-        $employee->professional_register = (isset($data->professinal_register) && $data->professinal_register != null) ? $data->professinal_register : null;
+        $employee->professional_register = (isset($data->professional_register) && $data->professional_register != null) ? $data->professional_register : null;
         if(isset($data->file) && $data->file != null){
             $employee->photo = $data->file;
         }
@@ -196,7 +196,7 @@ class EmployeeRepositoryConcrete implements IRepository,INotifer,Serializable
         }
 
         if($join){
-            $query = $query->with(['bussinessRelation','userRelation']);
+            $query = $query->with(['bussinessRelation','userRelation','specialtieRelationPivot']);
         }
 
         if(array_key_exists('id',$conditions)){
@@ -250,7 +250,7 @@ class EmployeeRepositoryConcrete implements IRepository,INotifer,Serializable
 
     public function serialize($data, string $type = 'json',bool $first = false)
     {
-
+        $manyRelation = [];
         if(!$first){
             $dataEmployee = new Collection();
 
@@ -304,6 +304,22 @@ class EmployeeRepositoryConcrete implements IRepository,INotifer,Serializable
                     $employee->user_created_at = $value->userRelation->createda_at;
                     $employee->user_updated_at = $value->userRelation->updated_at;
                     $employee->user_deleted_at = $value->userRelation->deleted_at;
+                }
+
+                if($value->specialtieRelationPivot != null){
+                    foreach ($value->specialtieRelationPivot as $specialtie){
+                        $manyRelation[] = [
+                            'id' => $specialtie->id,
+                            'uuid' => $specialtie->uuid,
+                            'specialtie_name' => $specialtie->name,
+                            'register_syndicate' => $specialtie->register_syndicate,
+                            'specialtie_deleted_at' => $specialtie->deleted_at,
+                            'specialtie_created_at' => $specialtie->created_at,
+                            'specialtie_updated_at' => $specialtie->updated_at
+
+                        ];
+                    }
+                    $employee->specialties = $manyRelation;
                 }
                 $dataEmployee->add($employee);
             }
@@ -362,6 +378,21 @@ class EmployeeRepositoryConcrete implements IRepository,INotifer,Serializable
                 $employee->user_deleted_at = $data->userRelation->deleted_at;
             }
 
+            if($data->specialtieRelationPivot != null){
+                foreach ($data->specialtieRelationPivot as $specialtie){
+                    $manyRelation[] = [
+                        'id' => $specialtie->id,
+                        'uuid' => $specialtie->uuid,
+                        'specialtie_name' => $specialtie->name,
+                        'register_syndicate' => $specialtie->register_syndicate,
+                        'specialtie_deleted_at' => $specialtie->deleted_at,
+                        'specialtie_created_at' => $specialtie->created_at,
+                        'specialtie_updated_at' => $specialtie->updated_at
+
+                    ];
+                }
+                $employee->specialties = $manyRelation;
+            }
 
             if($type == '' || $type == null){
                 return $employee;

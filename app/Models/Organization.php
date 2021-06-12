@@ -39,4 +39,9 @@ class Organization extends Model
     {
         return $this->hasOne(Profile::class,'organization_id','id');
     }
+
+    public function specialtieRelation()
+    {
+        return $this->hasOne(Specialtie::class,'organization_id','id');
+    }
 }
