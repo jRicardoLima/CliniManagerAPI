@@ -92,7 +92,7 @@ class EmployeeController extends Controller
             }
 
         }catch (Exception $e){
-            return $this->error('Error',480,$e->getMessage());
+            return $this->error('Error',480,'Erro ao pesquisar Funcionarios');
         }
     }
 
@@ -169,7 +169,7 @@ class EmployeeController extends Controller
             return $this->success([],'Erro id nulo',215);
         }catch(Exception $e){
             DB::rollBack();
-            return $this->error('Erro ao excluir funcionario',480,[$e->getMessage()]);
+            return $this->error('Erro ao excluir funcionario',480);
         }
     }
 

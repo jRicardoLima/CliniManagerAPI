@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BussinessUnitsController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\OccupationController;
+use App\Http\Controllers\SpecialtieController;
 use App\Http\Middleware\VerifyTokenApi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -56,10 +57,17 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
         //Employee
         Route::post('/admin/employee/store',[EmployeeController::class,'store']);
         Route::post('/admin/employee/search',[EmployeeController::class,'search']);
-        Route::put('admin/employee/{id}',[EmployeeController::class,'update']);
-        Route::delete('admin/employee/{id}',[EmployeeController::class,'delete']);
-        Route::get('admin/employee/image/{id}',[EmployeeController::class,'photoUser']);
-        Route::get('admin/employee/employee-list/{type}',[EmployeeController::class,'listEmployee']);
+        Route::put('/admin/employee/{id}',[EmployeeController::class,'update']);
+        Route::delete('/admin/employee/{id}',[EmployeeController::class,'delete']);
+        Route::get('/admin/employee/image/{id}',[EmployeeController::class,'photoUser']);
+        Route::get('/admin/employee/employee-list/{type}',[EmployeeController::class,'listEmployee']);
         //End employee
+
+        //Specialties
+        Route::post('/admin/specialties/store',[SpecialtieController::class,'store']);
+        Route::post('/admin/specialties/search',[SpecialtieController::class,'search']);
+        Route::put('/admin/specialties/{id}',[SpecialtieController::class,'update']);
+        Route::delete('/admin/specialties/{id}',[SpecialtieController::class,'delete']);
+        //End specialties
     });
 });
