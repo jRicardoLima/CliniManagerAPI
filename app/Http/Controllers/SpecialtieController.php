@@ -73,8 +73,9 @@ class SpecialtieController extends Controller
 
            }
            return $this->success([],'ID nulo',215);
-        }catch (ValidationException $e){
-
+        }catch (ValidationException $exc){
+            DB::rollBack();
+            return $this->success($exc->errors(),'Erro de validação',215);
         }catch (\Exception $e){
             DB::rollBack();
             return $this->error($e->getMessage(),480,[]);
@@ -89,7 +90,7 @@ class SpecialtieController extends Controller
                     $ret = $this->specialtieRepository->remove($id);
                 DB::commit();
                 if($ret){
-                    return $this->success([],'Especilidade excluida com sucesso',200);
+                    return $this->success([],'Especialidade excluida com sucesso',200);
                 }
                 DB::rollBack();
                 return $this->success([],'Especialidade não pode ser excluida',215);
@@ -99,6 +100,20 @@ class SpecialtieController extends Controller
            DB::rollBack();
            return $this->error('Erro ao excluir especialidade',480,[$e->getMessage()]);
        }
+    }
+
+    public function listSpecialtie()
+    {
+        try{
+            $ret = $this->specialtieRepository->findAll(false,true);
+
+            if(!is_null($ret) && $ret != ""){
+                return $this->success($ret,'success',200);
+            }
+            return $this->success([],'Especialidades não encotradas',215);
+        }catch (\Exception $e){
+           return $this->error('Erro ao listar especialidades',480,[]);
+        }
     }
 
 }

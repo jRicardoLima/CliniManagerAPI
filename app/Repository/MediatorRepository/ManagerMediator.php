@@ -13,9 +13,9 @@ abstract class ManagerMediator
    protected function __construct(INotified $repository,INotifer $notifer)
    {
        try {
-           $this->repository = (new $repository)->notified();
-           $this->notifier = (new $notifer)->thisNotifier();
-       }catch(Exception $e){
+           $this->repository = (new $repository())->notified();
+           $this->notifier = (new $notifer())->thisNotifier();
+       }catch(Exception $exec){
            throw new Exception('Repository is null or not exists');
        }
    }

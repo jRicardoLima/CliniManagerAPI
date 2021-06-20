@@ -243,10 +243,12 @@ class EmployeeRepositoryConcrete implements IRepository,INotifer,Serializable
         }
     }
 
+
     public function getModel()
     {
         return $this->model;
     }
+
 
     public function serialize($data, string $type = 'json',bool $first = false)
     {

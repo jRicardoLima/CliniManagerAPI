@@ -3,7 +3,6 @@
 
 namespace App\Repository\RepositoryConcrete;
 
-
 use App\Models\FactoriesModels\ModelsFactory;
 use App\Models\Specialtie;
 use App\Repository\IRepository;
@@ -18,9 +17,11 @@ class SpecialtieRepositoryConcrete implements IRepository,INotifer,Serializable
 {
 
     protected $model = null;
-    protected $getDataPivot = false;
+    private $getDataRelations = false;
+    private $isJoinRelation = [];
     public function __construct()
     {
+
         $this->model = App::make(ModelsFactory::class, ['className' => Specialtie::class]);
     }
 
@@ -29,17 +30,17 @@ class SpecialtieRepositoryConcrete implements IRepository,INotifer,Serializable
         $query = $this->model;
 
         if ($join) {
-            $this->getDataPivot = true;
-            $query = $query->with(['employeeRelationPivot']);
+            $this->getDataRelations = true;
+            //$query = $query->with(['employeeRelationPivot']);
         }
         if (!$uuid) {
-            $query = $query->where('id', $id)
+            $query = $query->where('id','=', $id)
                 ->where('organization_id', '=', auth()->user()->organization_id)
                 ->first();
         } else {
-            $query = $query->where('uuid', $id)
-                ->where('organization_id', '=', auth()->user()->organization_id)
-                ->first();
+            $query = $query->where('uuid','=', $id)
+                           ->where('organization_id', '=', auth()->user()->organization_id)
+                           ->first();
         }
 
         if ($serialize) {
@@ -53,14 +54,14 @@ class SpecialtieRepositoryConcrete implements IRepository,INotifer,Serializable
         $query = $this->model;
 
         if($join){
-            $this->getDataPivot = true;
+            $this->getDataRelations = true;
         }
         $query = $query->where('organization_id', '=',auth()->user()->organization_id);
 
         if ($serialize) {
             return $this->serialize($query->get(),'');
         }
-        return $query;
+        return $query->get();
     }
 
     public function save(object $obj, bool $returnObject = false)
@@ -69,7 +70,7 @@ class SpecialtieRepositoryConcrete implements IRepository,INotifer,Serializable
 
         $specialtie->uuid = Str::uuid();
         $specialtie->name = $obj->name;
-        $specialtie->register_syndicate = (isset($obj->syndicate_code) && $obj->syndicate_code != null) ? $obj->syndicate_code : null;
+        $specialtie->register_syndicate = isset($obj->syndicate_code) && $obj->syndicate_code != null ? $obj->syndicate_code : null;
         $specialtie->organization_id = auth()->user()->organization_id;
         $ret = $specialtie->save();
 
@@ -92,7 +93,7 @@ class SpecialtieRepositoryConcrete implements IRepository,INotifer,Serializable
         $specialtie = $this->findId($id);
 
         $specialtie->name = $data->name;
-        $specialtie->register_syndicate = (isset($data->syndicate_code) && $data->syndicate_code != null) ? $data->syndicate_code : null;
+        $specialtie->register_syndicate = isset($data->syndicate_code) && $data->syndicate_code != null ? $data->syndicate_code : null;
 
         $ret = $specialtie->save();
         if (isset($data->linkEmployee)) {
@@ -118,22 +119,14 @@ class SpecialtieRepositoryConcrete implements IRepository,INotifer,Serializable
 
     public function remove($id, bool $forceDelete = false)
     {
+        $specialtie = $this->findId($id,false,false,false);
+
         if (!$forceDelete) {
-            $specialtie = $this->findId($id,false,false,false);
-
-            if($specialtie->employeeRelationPivot != null){
-                $specialtie->employeeRelationPivot()->sync([]);
-            }
-
+            $specialtie->employeeRelationPivot()->sync([]);
             return $specialtie->delete();
         }
-        $specialtie = $this->findId($id);
 
-        if($specialtie->employeeRelationPivot != null){
-            $specialtie->employeeRelationPivot()->sync([]);
-        }
-
-
+        $specialtie->employeeRelationPivot()->sync([]);
         return $specialtie->forceDelete();
     }
 
@@ -146,7 +139,7 @@ class SpecialtieRepositoryConcrete implements IRepository,INotifer,Serializable
         }
 
         if ($join) {
-            $this->getDataPivot = true;
+            $this->getDataRelations = true;
             $query = $query->with(['employeeRelationPivot']);
         }
 
@@ -161,7 +154,9 @@ class SpecialtieRepositoryConcrete implements IRepository,INotifer,Serializable
         }
         if(array_key_exists('cod_employee',$conditions)){
             $query = $query->join('employee_specialties','employee_specialties.specialtie_id','=','specialties.id')
+                           ->addSelect('specialties.*')
                            ->where('employee_specialties.employee_id','=',$conditions['cod_employee']);
+            $this->isJoinBuilder(true,['employee_specialties']);
         }
 
         if ($first) {
@@ -193,15 +188,12 @@ class SpecialtieRepositoryConcrete implements IRepository,INotifer,Serializable
 
     public function serialize($data, string $type = 'json', bool $first = false)
     {
-        $manyRelation = new Collection();
-
         if (!$first) {
             $dataSpecialties = new Collection();
 
             foreach ($data as $key => $value) {
                 $specialties = new \stdClass();
-                $employeeData = [];
-                $specialties->id = (isset($value->specialtie_id)) ? $value->specialtie_id : $value->id;
+                $specialties->id = isset($value->specialtie_id) ? $value->specialtie_id : $value->id;
                 $specialties->uuid = $value->uuid;
                 $specialties->name = $value->name;
                 $specialties->register_syndicate = $value->register_syndicate;
@@ -209,56 +201,82 @@ class SpecialtieRepositoryConcrete implements IRepository,INotifer,Serializable
                 $specialties->created_at = $value->created_at;
                 $specialties->updated_at = $value->updated_at;
 
-                if($this->getDataPivot){
-
-                    $employeeData = $this->controlRelations('employeespecialtiesrelation',$value);
+                if($this->getDataRelations){
+                    $dataEmployees= $this->getDataRelationMany($value->employeeRelationPivot,$value);
+                    $specialties->employees = $dataEmployees;
                 }
-                $specialties->employees = $employeeData;
                 $dataSpecialties->add($specialties);
             }
-
-            if ($type == '' || $type == null) {
-                return $dataSpecialties;
-            } else if ($type == 'md64') {
-                return base64_encode($dataSpecialties);
-            } else if ($type == 'json') {
-                return $dataSpecialties->jsonSerialize();
-            }
+            return $this->typeReturnSerialize($type,$dataSpecialties);
         }
         $specialtie = new \stdClass();
-        $specialtie->id = $value->id;
-        $specialtie->uuid = $value->uuid;
-        $specialtie->name = $value->name;
-        $specialtie->register_syndicate = $value->register_syndicate;
-        $specialtie->deleted_at = $value->deleted_at;
-        $specialtie->created_at = $value->created_at;
-        $specialtie->updated_at = $value->updated_at;
+        $specialtie->id = $data->id;
+        $specialtie->uuid = $data->uuid;
+        $specialtie->name = $data->name;
+        $specialtie->register_syndicate = $data->register_syndicate;
+        $specialtie->deleted_at = $data->deleted_at;
+        $specialtie->created_at = $data->created_at;
+        $specialtie->updated_at = $data->updated_at;
 
-        if ($specialtie->employeeRelationPivot != null) {
-            foreach ($specialtie->employeeRelationPivot as $employee) {
-                $relation = [
-                    'employee_id' => $employee->id,
-                    'employee_uuid' => $employee->uuid,
-                    'employee_name' => $employee->name,
-                    'employee_birth_date' => $employee->birth_date,
-                    'employee_salary' => $employee->salary,
-                    'employee_type' => $employee->type,
-                    'employee_professional_register' => $employee->professional_register,
-                    'employee_photo' => $employee->photo
-                ];
-                $manyRelation->add($relation);
-            }
-            $specialtie->employees = $manyRelation;
+        if($this->getDataRelations){
+            $specialtie->employees = $this->getDataRelationMany($data->employeeRelationPivot,$data);
         }
-        if ($type == '' || $type == null) {
-            return $specialtie;
-        } else if ($type == 'md64') {
-            return base64_encode($specialtie);
-        } else if ($type == 'json') {
-            return json_encode($specialtie);
-        }
+        return $this->typeReturnSerialize($type,$specialtie);
     }
 
+    public function typeReturnSerialize($type,$data)
+    {
+        if($type == null || $type == '' ){
+            return $data;
+        }
+        return json_encode($data);
+    }
+    private function isJoinBuilder(bool $join,array $joins)
+    {
+        return $this->isJoinRelation = ['isJoin' => true,'joins' => $joins];
+    }
+
+    private function getDataRelationMany($relation,$value){
+        $data = [];
+        if(count($this->isJoinRelation) && $this->isJoinRelation['isJoin']){
+            if($this->isJoinRelation['joins'][0] == 'employee_specialties'){
+                $result = $this->getDataPivotEmployeeSpecialties($value->id);
+
+                if($result != null && count($result) > 0){
+                    foreach ($result as $item){
+                        $data[] = [
+                            'employee_id' =>  $item->id,
+                            'employee_uuid' =>  $item->uuid,
+                            'employee_name' =>  $item->name,
+                            'employee_birth_date' =>  $item->birth_date,
+                            'employee_salary' =>  $item->salary,
+                            'employee_type' =>  $item->type,
+                            'employee_professional_register' =>  $item->professional_register,
+                            'employee_photo' =>  $item->photo
+                        ];
+                    }
+                }
+                return $data;
+            }
+        }
+        if($relation !== null){
+            foreach ($relation as $item){
+                if($item->pivot->specialtie_id == $value->id){
+                    $data[] = [
+                        'employee_id' =>  $item->id,
+                        'employee_uuid' =>  $item->uuid,
+                        'employee_name' =>  $item->name,
+                        'employee_birth_date' =>  $item->birth_date,
+                        'employee_salary' =>  $item->salary,
+                        'employee_type' =>  $item->type,
+                        'employee_professional_register' =>  $item->professional_register,
+                        'employee_photo' =>  $item->photo
+                    ];
+                }
+            }
+        }
+        return $data;
+    }
     private function controlRelations(string $nameRelation,$param){
         switch (strtolower($nameRelation)){
 
@@ -279,22 +297,7 @@ class SpecialtieRepositoryConcrete implements IRepository,INotifer,Serializable
                  AND employee_specialties.specialtie_id = specialties.id
                  AND employee_specialties.specialtie_id = :id";
 
-        $employeeData =  DB::select($query,['id' => $idSpecialtie]);
-        $ret = [];
-        if ($employeeData != null && count($employeeData) > 0) {
-            foreach ($employeeData as $employee) {
-                $ret[] = [
-                    'employee_id' => $employee->id,
-                    'employee_uuid' => $employee->uuid,
-                    'employee_name' => $employee->name,
-                    'employee_birth_date' => $employee->birth_date,
-                    'employee_salary' => $employee->salary,
-                    'employee_type' => $employee->type,
-                    'employee_professional_register' => $employee->professional_register,
-                    'employee_photo' => $employee->photo
-                ];
-            }
-        }
-        return $ret;
+        return DB::select($query,['id' => $idSpecialtie]);
+
     }
 }

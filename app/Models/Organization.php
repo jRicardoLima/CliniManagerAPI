@@ -44,4 +44,9 @@ class Organization extends Model
     {
         return $this->hasOne(Specialtie::class,'organization_id','id');
     }
+
+    public function healthProcedure()
+    {
+        return $this->hasOne(healthProcedure::class,'organization_id','id');
+    }
 }

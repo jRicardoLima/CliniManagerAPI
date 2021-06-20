@@ -10,9 +10,6 @@ abstract class HttpClientImplementation implements IHttpClient
 
     public function methodGet(string $url,array $param = []) : ?Response
     {
-        if($param == []){
-            return Http::get($url);
-        }
         return Http::get($url,$param);
     }
 

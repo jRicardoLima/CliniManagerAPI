@@ -22,11 +22,11 @@ class OcuppationRepositoryConcrete implements IRepository
     public function findId($id,bool $uuid = false,bool $join = false,bool $serialize = false)
     {
         if(!$uuid){
-            return  $this->model->where('id', $id)
+            return $this->model->where('id', $id)
                                 ->where('organization_id','=',auth()->user()->organization_id)
                                 ->first();
         } else {
-            return  $this->model->where('uuid',$id)
+            return $this->model->where('uuid',$id)
                                 ->where('organization_id','=',auth()->user()->organization_id)
                                 ->first();
         }

@@ -68,7 +68,7 @@ class Employee extends Model
     //Accessors and Mutators
     public function getBirthDateAttribute($value)
     {
-       return  convertData($value);
+       return convertData($value);
     }
 
     public function getSalaryAttribute($value)

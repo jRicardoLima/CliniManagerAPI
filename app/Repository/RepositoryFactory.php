@@ -20,9 +20,9 @@ class RepositoryFactory
         try{
             $reflection = new ReflectionClass($this->model);
             $name = $reflection->getName();
-            return new $name;
-        }catch (\Exception $e){
-            return $e->getMessage();
+            return new $name();
+        }catch (\Exception $exc){
+            return $exc->getMessage();
         }
 
     }

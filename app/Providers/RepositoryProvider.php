@@ -16,7 +16,7 @@ class RepositoryProvider extends ServiceProvider
     public function register()
     {
         $this->app->bind(RepositoryFactory::class,function($app,$class){
-            $factory = new $class['class'];
+            $factory = new $class['class']();
             return (new RepositoryFactory($factory->createFactory()))->factory();
         });
     }

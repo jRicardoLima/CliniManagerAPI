@@ -18,7 +18,7 @@ use stdClass;
 
 class BussinessUnitRepositoryConcrete implements IRepository,INotifer,Serializable
 {
-    protected  $model = null;
+    protected $model = null;
 
     public function __construct()
     {
@@ -174,18 +174,13 @@ class BussinessUnitRepositoryConcrete implements IRepository,INotifer,Serializab
             throw new Exception('Param is Null');
         }
         switch (strtolower($methodNotifier)){
-            case 'saveaddress':
-                $id = $serviceDispatch->dispatchSaveAddress($param);
-                return $id;
-            case 'updateaddress':
+            case 'saveaddress': return $serviceDispatch->dispatchSaveAddress($param);
 
-                $ret = $serviceDispatch->dispacthUpdateAddress($param->address_id,$param);
-                return $ret;
-            case 'deleteaddress':
-                $ret = $serviceDispatch->dispatchDeleteAddress($param);
-                return $ret;
-            default:
-                throw new Exception('Method not found');
+            case 'updateaddress': return $serviceDispatch->dispacthUpdateAddress($param->address_id,$param);
+
+            case 'deleteaddress': return $serviceDispatch->dispatchDeleteAddress($param);
+
+            default: throw new Exception('Method not found');
         }
     }
 

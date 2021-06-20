@@ -20,7 +20,7 @@ function formatMoneyToSql($value){
    return number_format($value,2,'.','');
 }
 
-function filterRequestAll($arrayData,bool $filter = true,Closure $closure = null){
+function filterRequestAll($arrayData,bool $filter = true,?Closure $closure = null){
     $collection = collect($arrayData);
 
     if($filter){
@@ -31,7 +31,6 @@ function filterRequestAll($arrayData,bool $filter = true,Closure $closure = null
 
     }
     return $collection->toArray();
-
 }
 
 function RequestAllCustom($arrayData,Closure $closure,$method = 'map',bool $toArray = true){
@@ -60,7 +59,7 @@ function decodeBase64ToImage($file,$newFile){
         $decode = base64_decode($data[1]);
         $size = getimagesizefromstring($decode);
 
-        if(empty($size) || strpos($size['mime'], 'image/') !== 0){
+        if($size == '' || strpos($size['mime'], 'image/') !== 0){
             throw new ValidationException(['Imagem não é valida']);
         }
 
