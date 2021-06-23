@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Repository\Repositories\SupplierRepository;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -48,5 +49,15 @@ class Organization extends Model
     public function healthProcedure()
     {
         return $this->hasOne(healthProcedure::class,'organization_id','id');
+    }
+
+    public function supplierRelation()
+    {
+        return $this->hasOne(Supplier::class,'organization_id','id');
+    }
+
+    public function productGroupRelation()
+    {
+        return $this->hasOne(ProductGroup::class,'organization_id','id');
     }
 }

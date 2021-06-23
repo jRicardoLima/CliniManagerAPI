@@ -35,5 +35,4 @@ trait ApiResponser
             $this->error('unauthorized',401);
         }
     }
-
 }

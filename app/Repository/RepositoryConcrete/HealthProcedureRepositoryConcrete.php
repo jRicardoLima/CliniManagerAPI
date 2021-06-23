@@ -12,7 +12,6 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use function PHPUnit\Framework\exactly;
 
 class HealthProcedureRepositoryConcrete implements IRepository, Serializable, INotifer
 {
@@ -158,7 +157,7 @@ class HealthProcedureRepositoryConcrete implements IRepository, Serializable, IN
                            ->where('health_procedure_specialties.specialtie_id','=',$conditions['cod_specialtie']);
             $this->isJoinBuilder(true,['health_procedure_specialties']);
         }
-
+        $query = $query->where('health_procedures.organization_id','=',auth()->user()->organization_id);
         if($first){
             if($serialize){
                 return $this->serialize($query->first(),'',true);

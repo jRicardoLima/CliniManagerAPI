@@ -229,7 +229,7 @@ class EmployeeRepositoryConcrete implements IRepository,INotifer,Serializable
         if(array_key_exists('occupation_id',$conditions)){
             $query = $query->where('employee.occupation_id', '=',$conditions['occupation_id']);
         }
-
+        $query = $query->where('employee.organization_id','=',auth()->user()->organization_id);
         if($first){
             if($serialize){
                 return $this->serialize($query->first(),'',true);

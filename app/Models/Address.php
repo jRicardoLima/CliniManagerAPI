@@ -66,4 +66,9 @@ class Address extends Model
     {
         return $this->belongsTo(Employee::class,'address_id','id');
     }
+
+    public function supplierRelation()
+    {
+        return $this->belongsTo(Supplier::class,'address_id','id');
+    }
 }

@@ -21,7 +21,6 @@ class VerifyTokenApi
         if ($valueToken != null && $valueToken != '') {
             $idToken = strstr(strstr($valueToken, " ", false), "|", true);
             $tokenIsValid = false;
-
             foreach (auth()->user()->tokens as $token) {
                 if (trim($idToken) == $token->id) {
                     $tokenIsValid = true;

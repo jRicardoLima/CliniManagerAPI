@@ -55,14 +55,14 @@ class HealthProcedureController extends Controller
             $result = $this->healthProcedureRepository->get($data,[],true,false,true);
             return $this->success($result,'success',200);
         }catch(\Exception $exc){
-            return $this->error($exc->getMessage(),480);
+            return $this->error('Erro ao pesquisar procedimentos',480);
         }
     }
 
     public function update($id,Request $request)
     {
         try {
-            if($id !== '' && $id != null){
+            if($id != '' && $id != null){
                 $this->validate($request,[
                     'name' => 'required|min:3'
                 ]);
@@ -74,10 +74,10 @@ class HealthProcedureController extends Controller
                         return $this->success([],'Procedimento atualizado com sucesso',200);
                     }
             }
-            return $this->success([],'Erro ID nulo',200);
+            return $this->success([],'Erro ID nulo',215);
         }catch (ValidationException $exc){
             DB::rollBack();
-            return $this->success($exc->errors(),'Erro de validação',200);
+            return $this->success($exc->errors(),'Erro de validação',215);
         } catch (\Exception $exc){
             return $this->error('Erro ao atualizar especialidade',480);
         }
@@ -86,7 +86,7 @@ class HealthProcedureController extends Controller
     public function delete($id)
     {
         try {
-            if($id !== null && $id !== ''){
+            if($id != null && $id != ''){
                 DB::beginTransaction();
                   $ret = $this->healthProcedureRepository->remove($id);
                DB::commit();
@@ -95,7 +95,7 @@ class HealthProcedureController extends Controller
                    return $this->success([],'Procedimento excluido com sucesso',200);
                }
                DB::rollBack();
-               return $this->success([],'procedimento não pode ser excluido',215);
+               return $this->success([],'Procedimento não pode ser excluido',215);
             }
             return $this->success([],'Erro ID nulo',215);
         }catch (\Exception $exc){

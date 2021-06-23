@@ -6,7 +6,10 @@ use App\Http\Controllers\BussinessUnitsController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\HealthProcedureController;
 use App\Http\Controllers\OccupationController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProductGroupController;
 use App\Http\Controllers\SpecialtieController;
+use App\Http\Controllers\SupplierController;
 use App\Http\Middleware\VerifyTokenApi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -79,5 +82,29 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
         Route::delete('/admin/health-procedure/{id}', [HealthProcedureController::class,'delete']);
         Route::get('/admin/health-procedure/health-procedure-list', [HealthProcedureController::class,'listHealthProcedure']);
         //End healthProcedure
+
+        //Supplier
+        Route::post('/admin/supplier/store',[SupplierController::class,'store']);
+        Route::post('/admin/supplier/search',[SupplierController::class,'search']);
+        Route::put('/admin/supplier/{id}',[SupplierController::class,'update']);
+        Route::delete('/admin/supplier/{id}',[SupplierController::class,'delete']);
+        Route::get('/admin/supplier/supplier-list',[SupplierController::class,'listSuppliers']);
+        //End supplier
+
+        //Product
+        Route::post('/admin/product/store',[ProductController::class,'store']);
+        Route::post('/admin/product/search',[ProductController::class,'search']);
+        Route::put('/admin/product/{id}',[ProductController::class,'update']);
+        Route::delete('/admin/product/{id}',[ProductController::class,'delete']);
+        Route::get('/admin/product/product-list',[ProductController::class,'listProducts']);
+        //End product
+
+        //Product Group
+        Route::post('/admin/product-group/store',[ProductGroupController::class,'store']);
+        Route::post('/admin/product-group/search',[ProductGroupController::class,'search']);
+        Route::put('/admin/product-group/{id}',[ProductGroupController::class,'update']);
+        Route::delete('/admin/product-group/{id}',[ProductGroupController::class,'delete']);
+        Route::get('/admin/product-group/product-group-list',[ProductGroupController::class,'listProductGroup']);
+        //End product group
     });
 });

@@ -180,7 +180,7 @@ class BussinessUnitRepositoryConcrete implements IRepository,INotifer,Serializab
 
             case 'deleteaddress': return $serviceDispatch->dispatchDeleteAddress($param);
 
-            default: throw new Exception('Method not found');
+            default: throw new Exception('Notifier method not found');
         }
     }
 
