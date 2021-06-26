@@ -113,16 +113,19 @@ class OccupationController extends Controller
     public function listOccupation()
     {
         try{
-            DB::beginTransaction();
                 $coluns = [
                     'id',
                     'name'
                 ];
                 $result = $this->occupationRepository->get([],$coluns);
-            DB::commit();
-            return $this->success($result,'success',200);
+
+                if($result != null &&  count($result) > 0){
+                    return $this->success($result,'success',200);
+                }
+            return $this->success([],'Funções não encontradas',215);
+
+
         }catch(Exception $e){
-            DB::rollBack();
             return $this->error('Erro ao listar funções',480);
         }
     }

@@ -118,6 +118,14 @@ class SupplierController extends Controller
 
     public function listSuppliers()
     {
-
+        try{
+            $result = $this->supplierRepository->get([]);
+            if($result != null &&  count($result) > 0){
+                return $this->success($result,'success',200);
+            }
+            return $this->success([],'Fornecedores não encontrados',215);
+        } catch (Exception $exc){
+            return $this->error('Erro ao listar Forncedores',480);
+        }
     }
 }

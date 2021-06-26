@@ -164,16 +164,19 @@ class BussinessUnitsController extends Controller
     public function listBussiness()
     {
         try {
-            DB::beginTransaction();
                 $coluns=[
                     'id',
                     'fantasy_name'
                 ];
                 $result = $this->bussinessRepository->get([],$coluns);
-            DB::commit();
-            return $this->success($result,'success',200);
+
+                if($result != null && count($result) > 0){
+                    return $this->success($result,'success',200);
+                } else {
+                    return $this->success([],'Unidades não encontradas',215);
+                }
+
         }catch (Exception $e){
-            DB::rollBack();
             $this->error('Erro ao listar unidades',480);
         }
     }

@@ -25,7 +25,7 @@ class AuthController extends Controller
 //
 //         $organization->uuid = Str::uuid();
 //         $organization->cpf_cnpj = $request->cpf_cnpj;
-//         $organization->license = '123442adaxd';
+//         $organization->license = $request->license;
 //         $organization->qtd_user = $request->qtd_user;
 //         $organization->save();
 
@@ -35,12 +35,14 @@ class AuthController extends Controller
 //        $occupation->uuid = Str::uuid();
 //        $occupation->organization_id = 1;
 //        $occupation->save();
+//        $user = new User();
 //        $user->user_name = $attr['user_name'];
 //        $user->uuid = Str::uuid();
 //        $user->password = bcrypt($attr['password']);
-//
+//        $user->organization_id = 2;
+////
 //        $user->save();
-//        return ['message' => 'usuario cadastrado com sucesso'];
+     //   return ['message' => 'minha rola'];
         //return $this->success(['token' => $user->createToken('API Token')->plainTextToken]);
     }
 

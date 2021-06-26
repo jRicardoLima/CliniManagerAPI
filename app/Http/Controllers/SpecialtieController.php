@@ -88,8 +88,8 @@ class SpecialtieController extends Controller
            if($id != null && $id !== ''){
                 DB::beginTransaction();
                     $ret = $this->specialtieRepository->remove($id);
-                DB::commit();
                 if($ret){
+                    DB::commit();
                     return $this->success([],'Especialidade excluida com sucesso',200);
                 }
                 DB::rollBack();
@@ -107,7 +107,7 @@ class SpecialtieController extends Controller
         try{
             $ret = $this->specialtieRepository->findAll(false,true);
 
-            if(!is_null($ret) && $ret != ""){
+            if(!is_null($ret) &&  count($ret) > 0){
                 return $this->success($ret,'success',200);
             }
             return $this->success([],'Especialidades não encotradas',215);

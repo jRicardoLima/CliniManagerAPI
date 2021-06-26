@@ -23,6 +23,9 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(IHttpClient::class,function($app,$class){
             return new $class['className'];
         });
+        $this->app->singleton(\Faker\Generator::class,function(){
+            return \Faker\Factory::create('pt_BR');
+        });
     }
 
     /**
