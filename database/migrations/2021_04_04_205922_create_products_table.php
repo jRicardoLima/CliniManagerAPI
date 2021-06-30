@@ -17,7 +17,7 @@ class CreateProductsTable extends Migration
             $table->id();
             $table->uuid('uuid')->unique();
             $table->string('name');
-            $table->string('unit_measurement');
+            $table->string('unit_measurement')->nullable();
             $table->string('origin')->nullable();
             $table->string('ncm')->nullable();
             $table->string('cest')->nullable();

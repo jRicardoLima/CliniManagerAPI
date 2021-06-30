@@ -60,4 +60,9 @@ class Organization extends Model
     {
         return $this->hasOne(ProductGroup::class,'organization_id','id');
     }
+
+    public function productRelation()
+    {
+        return $this->hasOne(Product::class,'organization_id','id');
+    }
 }

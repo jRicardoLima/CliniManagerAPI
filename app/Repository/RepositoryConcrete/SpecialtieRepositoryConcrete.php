@@ -44,7 +44,7 @@ class SpecialtieRepositoryConcrete implements IRepository,INotifer,Serializable
         }
 
         if ($serialize) {
-            return $this->serialize($query, null, '');
+            return $this->serialize($query, null, true);
         }
         return $query;
     }
@@ -158,6 +158,7 @@ class SpecialtieRepositoryConcrete implements IRepository,INotifer,Serializable
                            ->where('employee_specialties.employee_id','=',$conditions['cod_employee']);
             $this->isJoinBuilder(true,['employee_specialties']);
         }
+        $query = $query->where('organization_id','=',auth()->user()->organization_id);
 
         if ($first) {
             if ($serialize) {
@@ -276,19 +277,6 @@ class SpecialtieRepositoryConcrete implements IRepository,INotifer,Serializable
             }
         }
         return $data;
-    }
-    private function controlRelations(string $nameRelation,$param){
-        switch (strtolower($nameRelation)){
-
-            case 'employeespecialtiesrelation':
-
-                if(isset($param->specialtie_id)){
-                    return $this->getDataPivotEmployeeSpecialties($param->specialtie_id);
-                }
-                return $this->getDataPivotEmployeeSpecialties($param->id);
-            default:
-                return null;
-        }
     }
 
     private function getDataPivotEmployeeSpecialties($idSpecialtie){

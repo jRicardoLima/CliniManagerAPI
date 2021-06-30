@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateProductsSuppliersTable extends Migration
+class AddColumDescriptionProductTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,9 @@ class CreateProductsSuppliersTable extends Migration
      */
     public function up()
     {
-        Schema::create('products_suppliers', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+        Schema::table('products', function (Blueprint $table) {
+            $table->softDeletes();
+            $table->string('description')->after('st_icms')->nullable();
         });
     }
 
@@ -26,6 +26,8 @@ class CreateProductsSuppliersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('products_suppliers');
+        Schema::table('products', function (Blueprint $table) {
+            $table->dropColumn('description');
+        });
     }
 }

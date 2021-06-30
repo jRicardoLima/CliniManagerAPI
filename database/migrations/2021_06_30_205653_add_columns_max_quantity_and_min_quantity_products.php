@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddForeignKeyProductsTable extends Migration
+class AddColumnsMaxQuantityAndMinQuantityProducts extends Migration
 {
     /**
      * Run the migrations.
@@ -14,8 +14,8 @@ class AddForeignKeyProductsTable extends Migration
     public function up()
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->foreignId('product_group_id')->constrained('products_groups')->nullOnDelete();
-            $table->foreignId('organization_id')->constrained('organizations');
+            $table->decimal('maxQuantity')->nullable();
+            $table->decimal('minQuantity')->nullable();
         });
     }
 
@@ -27,8 +27,7 @@ class AddForeignKeyProductsTable extends Migration
     public function down()
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->dropConstrainedForeignId('product_group_id');
-            $table->dropConstrainedForeignId('organization_id');
+            $table->dropColumn(['maxQuantity','minQuantity']);
         });
     }
 }

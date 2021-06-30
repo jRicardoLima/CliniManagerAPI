@@ -29,4 +29,9 @@ class ProductGroup extends Model
     {
         return $this->belongsTo(Organization::class,'organization_id','id');
     }
+
+    public function productRelation()
+    {
+        return $this->hasMany(Product::class,'product_group_id','id');
+    }
 }

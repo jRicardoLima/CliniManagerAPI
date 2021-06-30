@@ -27,8 +27,9 @@ class SpecialtieController extends Controller
          DB::beginTransaction();
             $data = (object) $request->all();
             $ret = $this->specialtieRepository->save($data);
-            DB::commit();
+
             if($ret){
+                DB::commit();
                 return $this->success([],'Especialidade salva com sucesso',200);
             }
         } catch (ValidationException $e){
@@ -66,8 +67,9 @@ class SpecialtieController extends Controller
                DB::beginTransaction();
                 $data = (object) $request->all();
                 $ret = $this->specialtieRepository->update($id,$data);
-               DB::commit();
+
                 if($ret){
+                    DB::commit();
                     return $this->success([],'Especialidade atualizada com sucesso',200);
                 }
 
@@ -85,7 +87,7 @@ class SpecialtieController extends Controller
     public function delete($id)
     {
        try{
-           if($id != null && $id !== ''){
+           if($id != null && $id != ''){
                 DB::beginTransaction();
                     $ret = $this->specialtieRepository->remove($id);
                 if($ret){

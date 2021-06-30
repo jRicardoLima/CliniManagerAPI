@@ -36,4 +36,10 @@ class Supplier extends Model
     {
         return $this->belongsTo(Organization::class,'organization_id','id');
     }
+
+    public function productRelationPivot()
+    {
+        return $this->belongsToMany(Product::class,'products_suppliers',
+                                   'supplier_id','product_id');
+    }
 }
