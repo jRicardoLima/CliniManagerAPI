@@ -1,24 +1,31 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 function convertData($value, $format = 'd/m/Y'){
     return \Carbon\Carbon::parse($value)->format($format);
 }
 function convertDataToSql($value){
-   $date = explode('/',$value);
+    if(Str::contains($value,'/')){
+        $date = explode('/',$value);
 
-   return $date[2]."-".$date[1]."-".$date[0];
+        return $date[2]."-".$date[1]."-".$date[0];
+    }
+    return $value;
+
 }
 
-function formatMoneyToBr($value,$decimals = 2,$decimalSeparator = '.',$thousandsSeparator = ','){
+function formatMoneyToBr($value,$decimals = 2,$decimalSeparator = ',',$thousandsSeparator = '.'){
+    $value = str_replace(',','',$value);
     return number_format($value,$decimals,$decimalSeparator,$thousandsSeparator);
 }
+
 function formatMoneyToSql($value){
-   $value = str_replace(',','',$value);
+   $value = str_replace('.','',$value);
+   $value = str_replace(',','.',$value);
    return number_format($value,2,'.','');
+
 }
 
 function filterRequestAll($arrayData,bool $filter = true,?Closure $closure = null){

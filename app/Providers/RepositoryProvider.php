@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Repository\IRepository;
 use App\Repository\RepositoryFactory;
+use Illuminate\Container\Container;
 use Illuminate\Support\ServiceProvider;
 
 class RepositoryProvider extends ServiceProvider

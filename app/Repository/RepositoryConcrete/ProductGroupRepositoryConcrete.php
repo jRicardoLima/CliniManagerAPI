@@ -17,7 +17,6 @@ class ProductGroupRepositoryConcrete implements IRepository, INotifer, Serializa
     protected $model = null;
     private $getDataRelations = false;
     private $isJoinRelation = [];
-
     public function __construct()
     {
         $this->model = App::make(ModelsFactory::class,['className' => ProductGroup::class]);
@@ -47,17 +46,22 @@ class ProductGroupRepositoryConcrete implements IRepository, INotifer, Serializa
         return $query;
     }
 
-    public function findAll(bool $join = false, bool $serialize = false)
+    public function findAll(bool $join = false, bool $serialize = false, int $limit = 0)
     {
+        $query = $this->model;
         if($join){
             $this->getDataRelations = true;
         }
-        $ret = $this->model->where('organization_id',auth()->user()->organization_id)->get();
+        $query = $query->where('organization_id',auth()->user()->organization_id);
+
+        if($limit > 0){
+            $query = $query->limit($limit);
+        }
 
         if($serialize){
-            return $this->serialize($ret,'');
+            return $this->serialize($query->get(),'');
         }
-        return $ret;
+        return $query->get();
     }
 
     public function save(object $obj, bool $returnObject = false)
@@ -96,7 +100,7 @@ class ProductGroupRepositoryConcrete implements IRepository, INotifer, Serializa
         return $productGroup->forceDelete();
     }
 
-    public function get(array $conditions, array $coluns = [], bool $join = false, bool $first = false, bool $serialize = false)
+    public function get(array $conditions, array $coluns = [], bool $join = false, bool $first = false, bool $serialize = false,int $limit = 0)
     {
        $query = $this->model;
 
@@ -115,7 +119,9 @@ class ProductGroupRepositoryConcrete implements IRepository, INotifer, Serializa
            $query = $query->where('products_groups.name','like','%'.$conditions['name'].'%');
        }
        $query = $query->where('products_groups.organization_id','=',auth()->user()->organization_id);
-
+       if($limit > 0){
+           $query = $query->limit($limit);
+       }
        if($first){
            if($serialize){
                return $this->serialize($query->first(),'',true);
@@ -145,9 +151,9 @@ class ProductGroupRepositoryConcrete implements IRepository, INotifer, Serializa
 
     public function serialize($data, string $type = 'json', bool $first = false)
     {
+
         if(!$first){
             $dataProductGroup = new Collection();
-
             foreach ($data as $key => $value) {
                 $productGroup = new \stdClass();
 
@@ -174,5 +180,10 @@ class ProductGroupRepositoryConcrete implements IRepository, INotifer, Serializa
             return $data;
         }
         return json_encode($data);
+    }
+
+    public function saveInLoop(object $obj, bool $returnObject = false)
+    {
+        // TODO: Implement saveInLoop() method.
     }
 }

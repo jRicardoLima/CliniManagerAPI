@@ -19,7 +19,6 @@ class SupplierRepositoryConcrete implements INotifer, Serializable, IRepository
     protected $model = null;
     private $getDataRelations = false;
     private $isJoinRelation = [];
-
     public function __construct()
     {
         $this->model = App::make(ModelsFactory::class,['className' => Supplier::class]);
@@ -75,23 +74,45 @@ class SupplierRepositoryConcrete implements INotifer, Serializable, IRepository
         return $query;
     }
 
-    public function findAll(bool $join = false, bool $serialize = false)
+    public function findAll(bool $join = false, bool $serialize = false,int $limit = 0)
     {
+        $query = $this->model;
         if($join){
             $this->getDataRelations = true;
         }
 
-        $ret = $this->model->where('organization_id',auth()->user()->organization_id)->with('addressRelation')->get();
+        $query = $query->where('organization_id',auth()->user()->organization_id)->with('addressRelation');
 
-        if($serialize){
-            return $this->serialize($ret,'');
+        if($limit > 0){
+            $query = $query->limit($limit);
         }
-        return $ret;
+        if($serialize){
+            return $this->serialize($query->get(),'');
+        }
+        return $query->get();
     }
 
     public function save(object $obj, bool $returnObject = false)
     {
         $supplier = $this->model;
+
+        $supplier->uuid = Str::uuid();
+        $supplier->cpf_cnpj = $obj->cpf_cnpj;
+        $supplier->company_name = $obj->company_name;
+        $supplier->fantasy_name = isset($obj->fantasy_name) && $obj->fantasy_name !== null ? $obj->fantasy_name : null;
+        $supplier->address_id = $this->notifier('saveaddress',$obj)->id;
+        $supplier->organization_id = auth()->user()->organization_id;
+
+        $ret = $supplier->save();
+
+        if($returnObject){
+            return $supplier;
+        }
+        return $ret;
+    }
+    public function saveInLoop(object $obj, bool $returnObject = false)
+    {
+        $supplier = App::make(ModelsFactory::class,['className' => Supplier::class]);
 
         $supplier->uuid = Str::uuid();
         $supplier->cpf_cnpj = $obj->cpf_cnpj;
@@ -150,7 +171,7 @@ class SupplierRepositoryConcrete implements INotifer, Serializable, IRepository
         return false;
     }
 
-    public function get(array $conditions, array $coluns = [], bool $join = false, bool $first = false, bool $serialize = false)
+    public function get(array $conditions, array $coluns = [], bool $join = false, bool $first = false, bool $serialize = false,int $limit = 0)
     {
         $query = $this->model;
 
@@ -175,6 +196,10 @@ class SupplierRepositoryConcrete implements INotifer, Serializable, IRepository
             $query = $query->where('suppliers.cpf_cnpj','=',$conditions['cpf_cnpj']);
         }
         $query = $query->where('suppliers.organization_id','=',auth()->user()->organization_id);
+
+        if($limit > 0){
+            $query = $query->limit($limit);
+        }
 
         if($first){
             if($serialize){

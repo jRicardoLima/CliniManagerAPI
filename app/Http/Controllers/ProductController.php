@@ -90,7 +90,6 @@ class ProductController extends Controller
             if($id != null && $id != ''){
                 DB::beginTransaction();
                     $ret = $this->productRepository->remove($id);
-
                     if($ret){
                         DB::commit();
                         return $this->success([],'Produto excluido com sucesso',200);

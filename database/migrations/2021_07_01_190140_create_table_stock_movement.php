@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateStockTable extends Migration
+class CreateTableStockMovement extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,15 @@ class CreateStockTable extends Migration
      */
     public function up()
     {
-        Schema::create('stock', function (Blueprint $table) {
-            Schema::disableForeignKeyConstraints();
+        Schema::create('stock_movements', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->unique();
-            $table->double('qtd');
-            $table->enum('type_moviment',['entry','output']);
+            $table->enum('type',['input','output']);
+            $table->decimal('quantity_moved');
+            $table->decimal('unitary_amount',10,4)->nullable();
+            $table->decimal('total_amount',10,4);
+            $table->softDeletes();
             $table->timestamps();
-            Schema::enableForeignKeyConstraints();
         });
     }
 
@@ -31,6 +32,6 @@ class CreateStockTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('stock');
+        Schema::dropIfExists('table_stock_movement');
     }
 }

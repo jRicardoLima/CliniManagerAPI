@@ -53,5 +53,10 @@ class Product extends Model
                                    'product_id','supplier_id');
     }
 
+    public function stockMovementRelation()
+    {
+        return $this->hasMany(StockMovement::class,'product_id','id');
+    }
+
 
 }

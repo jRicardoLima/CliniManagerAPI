@@ -7,13 +7,13 @@ namespace App\Repository\RepositoryConcrete;
 use App\Models\FactoriesModels\ModelsFactory;
 use App\Models\Occupation;
 use App\Repository\IRepository;
+use Illuminate\Container\Container;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Str;
 
 class OcuppationRepositoryConcrete implements IRepository
 {
     protected $model = null;
-
     public function __construct()
     {
         $this->model = App::make(ModelsFactory::class,['className' => Occupation::class]);
@@ -32,9 +32,16 @@ class OcuppationRepositoryConcrete implements IRepository
         }
     }
 
-    public function findAll(bool $join = false,bool $serialize = false)
+    public function findAll(bool $join = false,bool $serialize = false,int $limit = 0)
     {
-        return $this->model->where('organization_id','=',auth()->user()->organization_id)->get();
+        $query = $this->model;
+
+        $query = $query->where('organization_id','=',auth()->user()->organization_id);
+
+        if($limit > 0){
+            $query = $query->limit($limit);
+        }
+        return $query->get();
     }
 
     public function save(object $obj, bool $returnObject = false)
@@ -73,7 +80,7 @@ class OcuppationRepositoryConcrete implements IRepository
         }
     }
 
-    public function get(array $conditions, array $coluns = [], bool $join = false,bool $first = false,bool $serialize = false)
+    public function get(array $conditions, array $coluns = [], bool $join = false,bool $first = false,bool $serialize = false,int $limit = 0)
     {
         $query = $this->model;
 
@@ -87,6 +94,10 @@ class OcuppationRepositoryConcrete implements IRepository
            $query = $query->where('name','=',$conditions['name']);
         }
         $query = $query->where('organization_id','=',auth()->user()->organization_id);
+
+        if($limit > 0){
+            $query = $query->limit($limit);
+        }
         if($first){
           return $query->first();
         } else{
@@ -97,5 +108,10 @@ class OcuppationRepositoryConcrete implements IRepository
     public function getModel()
     {
         return $this->model;
+    }
+
+    public function saveInLoop(object $obj, bool $returnObject = false)
+    {
+        // TODO: Implement saveInLoop() method.
     }
 }

@@ -11,10 +11,12 @@ use App\Repository\MediatorRepository\DispatchNotifier;
 use App\Repository\MediatorRepository\INotifer;
 use App\Repository\Serializable;
 use Exception;
+use Illuminate\Container\Container;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Str;
 use stdClass;
+use function PHPUnit\Framework\exactly;
 
 class EmployeeRepositoryConcrete implements IRepository,INotifer,Serializable
 {
@@ -23,7 +25,7 @@ class EmployeeRepositoryConcrete implements IRepository,INotifer,Serializable
 
     public function __construct()
     {
-        $this->model = App::make(ModelsFactory::class,['className' => Employee::class]);
+        $this->model =App::make(ModelsFactory::class,['className' => Employee::class]);
     }
 
     public function notifier(string $methodNotifier,$param = null)
@@ -80,7 +82,7 @@ class EmployeeRepositoryConcrete implements IRepository,INotifer,Serializable
         }
     }
 
-    public function findAll(bool $join = false, bool $serialize = false)
+    public function findAll(bool $join = false, bool $serialize = false,int $limit = 0)
     {
         $query = $this->model;
 
@@ -93,7 +95,9 @@ class EmployeeRepositoryConcrete implements IRepository,INotifer,Serializable
         }
         $query = $query->with('addressRelation')
                        ->where('organization_id','=',auth()->user()->organization_id);
-
+        if($limit){
+            $query = $query->limit($limit);
+        }
         if($serialize){
             return $this->serialize($query->get(),'');
         } else {
@@ -135,9 +139,9 @@ class EmployeeRepositoryConcrete implements IRepository,INotifer,Serializable
         $employee->name = $data->name;
         $employee->birth_date = convertDataToSql($data->birth_date);
         $employee->cpf_cnpj = $data->cpf_cnpj;
-        $employee->type = $data->type;
+        $employee->type = ($data->type == 'Profissional De Saúde') ? 'health_professional' : 'standard_employee';
         $employee->salary = (isset($data->salary) && $data->salary != null) ? formatMoneyToSql($data->salary) : null;
-        $employee->professional_register = (isset($data->professional_register) && $data->professional_register != null) ? $data->professional_register : null;
+        $employee->professional_register = (isset($data->professional_register) && $data->professional_register != null && $data->type != 'Funcionário padrão')   ? $data->professional_register : null;
         if(isset($data->file) && $data->file != null){
             $employee->photo = $data->file;
         }
@@ -150,8 +154,6 @@ class EmployeeRepositoryConcrete implements IRepository,INotifer,Serializable
         } else {
             return false;
         }
-
-
     }
 
     public function remove($id, bool $forceDelete = false)
@@ -187,7 +189,7 @@ class EmployeeRepositoryConcrete implements IRepository,INotifer,Serializable
         }
     }
 
-    public function get(array $conditions, array $coluns = [], bool $join = false, bool $first = false, bool $serialize = false)
+    public function get(array $conditions, array $coluns = [], bool $join = false, bool $first = false, bool $serialize = false,int $limit = 0)
     {
         $query = $this->model;
 
@@ -230,6 +232,10 @@ class EmployeeRepositoryConcrete implements IRepository,INotifer,Serializable
             $query = $query->where('employee.occupation_id', '=',$conditions['occupation_id']);
         }
         $query = $query->where('employee.organization_id','=',auth()->user()->organization_id);
+
+        if($limit > 0){
+            $query = $query->limit($limit);
+        }
         if($first){
             if($serialize){
                 return $this->serialize($query->first(),'',true);
@@ -284,6 +290,7 @@ class EmployeeRepositoryConcrete implements IRepository,INotifer,Serializable
                 $employee->telphone = $value->addressRelation->telphone;
                 $employee->celphone = $value->addressRelation->celphone;
                 $employee->email = $value->addressRelation->email;
+                $employee->observation = $value->addressRelation->observation;
                 $employee->address_created_at = $value->addressRelation->created_at;
                 $employee->address_updated_at = $value->addressRelation->updated_at;
                 $employee->address_deleted_at = $value->addressRelation->deleted_at;
@@ -359,6 +366,7 @@ class EmployeeRepositoryConcrete implements IRepository,INotifer,Serializable
             $employee->telphone = $data->addressRealtion->telphone;
             $employee->celphone = $data->addressRealtion->celphone;
             $employee->email = $data->addressRealtion->email;
+            $employee->observation = $data->addressRelation->observation;
             $employee->address_created_at = $data->addressRealtion->created_at;
             $employee->address_updated_at = $data->addressRealtion->updated_at;
             $employee->address_deleted_at = $data->addressRealtion->deleted_at;
@@ -404,5 +412,10 @@ class EmployeeRepositoryConcrete implements IRepository,INotifer,Serializable
                 return json_encode($employee);
             }
         }
+    }
+
+    public function saveInLoop(object $obj, bool $returnObject = false)
+    {
+        // TODO: Implement saveInLoop() method.
     }
 }

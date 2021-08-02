@@ -65,4 +65,9 @@ class Organization extends Model
     {
         return $this->hasOne(Product::class,'organization_id','id');
     }
+
+    public function stockMovementRelation()
+    {
+        return $this->hasOne(StockMovement::class,'organization_id','id');
+    }
 }

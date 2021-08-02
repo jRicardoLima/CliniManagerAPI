@@ -7,6 +7,7 @@ namespace App\Repository\Repositories;
 use App\Repository\IRepository;
 use App\Repository\Repository;
 use App\Repository\RepositoryConcrete\OcuppationRepositoryConcrete;
+use Illuminate\Container\Container;
 
 class OccupationRepository extends Repository
 {

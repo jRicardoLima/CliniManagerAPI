@@ -107,13 +107,12 @@ class ProductGroupController extends Controller
     {
         try {
             $ret = $this->productGroupRepository->findAll(false,true);
-
             if(!is_null($ret) &&  count($ret) > 0){
                 return $this->success($ret,'success',200);
             }
             return $this->success([],'Grupo de produtos não encotrados',215);
         } catch (\Exception $exc){
-            return $this->error('Erro ao listar Grupo de produtos',480,);
+            return $this->error($exc->getMessage(),480,);
         }
     }
 

@@ -42,4 +42,9 @@ class Supplier extends Model
         return $this->belongsToMany(Product::class,'products_suppliers',
                                    'supplier_id','product_id');
     }
+
+    public function stockMovementRelation()
+    {
+        return $this->hasMany(StockMovement::class,'supplier_id','id');
+    }
 }

@@ -70,21 +70,18 @@ class BussinessUnitsController extends Controller
     public function search(Request $request)
     {
         try {
-            DB::beginTransaction();
             $data = filterRequestAll($request->all());
 
             if($data == null || count($data) == 0){
 
-                $result = $this->bussinessRepository->findAll(true,true);
-                DB::commit();
-                return $this->success($result,'success',200);
-            } else {
-                $result = $this->bussinessRepository->get($data,[],true,false,true);
-                DB::commit();
+                $result = $this->bussinessRepository->findAll(true,false);
                 return $this->success($result,'success',200);
             }
+
+                $result = $this->bussinessRepository->get($data,[],true,false,false);
+                return $this->success($result,'success',200);
+
         }catch (Exception $e){
-            DB::rollBack();
             return $this->error('Error',480,$e->getMessage());
         }
     }
@@ -120,11 +117,10 @@ class BussinessUnitsController extends Controller
                 $bussiness->email = $request->email;
                 $bussiness->observation = $request->observation;
                 $bussiness->address_id = $request->address_id;
-
                 $ret = $this->bussinessRepository->update($id,$bussiness);
-            DB::commit();
 
             if($ret){
+                DB::commit();
                 return $this->success([],'Unidade atualizado com sucesso',200);
             } else{
                 DB::rollBack();
@@ -135,7 +131,7 @@ class BussinessUnitsController extends Controller
             return $this->success($e->errors(),'Erro de validação',215);
         } catch (Exception $e){
             DB::rollBack();
-            return $this->error('Erro ao atualizar',480,[]);
+            return $this->error($e->getMessage(),480,[]);
         }
     }
 
@@ -169,7 +165,6 @@ class BussinessUnitsController extends Controller
                     'fantasy_name'
                 ];
                 $result = $this->bussinessRepository->get([],$coluns);
-
                 if($result != null && count($result) > 0){
                     return $this->success($result,'success',200);
                 } else {

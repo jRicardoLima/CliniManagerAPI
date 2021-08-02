@@ -5,17 +5,19 @@ namespace App\Repository\RepositoryConcrete;
 
 
 use App\Models\Address;
+use App\Models\FactoriesModels\ModelsFactory;
 use App\Repository\IRepository;
 use App\Repository\MediatorRepository\INotified;
+use Illuminate\Container\Container;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Str;
 
 class AddressRepositoryConcrete implements IRepository,INotified
 {
     protected $model;
-
     public function __construct()
     {
-        $this->model = new Address();
+        $this->model = App::make(ModelsFactory::class,['className' => Address::class]);
     }
 
     public function findId($id, bool $uuid = false,bool $join = false,bool $serialize = false)
@@ -31,9 +33,15 @@ class AddressRepositoryConcrete implements IRepository,INotified
         }
     }
 
-    public function findAll(bool $join = false,bool $serialize = false)
+    public function findAll(bool $join = false,bool $serialize = false,int $limit = 0)
     {
-        return $this->model->where('organization_id','=',auth()->user()->organization_id);
+        $query = $this->model;
+        $query = $query->where('organization_id','=',auth()->user()->organization_id);
+
+        if($limit > 0){
+            $query = $query->limit($limit);
+        }
+        return $query->get();
     }
 
     public function save(object $obj, bool $returnObject = false)
@@ -96,7 +104,7 @@ class AddressRepositoryConcrete implements IRepository,INotified
         }
     }
 
-    public function get(array $conditions, array $coluns = [], bool $join = false, bool $first = false,bool $serialize = false)
+    public function get(array $conditions, array $coluns = [], bool $join = false, bool $first = false,bool $serialize = false,int $limit = 0)
     {
         $query = $this->model();
 
@@ -143,6 +151,10 @@ class AddressRepositoryConcrete implements IRepository,INotified
 
         $query = $query->where('organization_id','=',auth()->user()->organization_id);
 
+        if($limit > 0){
+            $query = $query->limit($limit);
+        }
+
         if($first){
             return $query->first();
         } else {
@@ -160,4 +172,8 @@ class AddressRepositoryConcrete implements IRepository,INotified
         return $this;
     }
 
+    public function saveInLoop(object $obj, bool $returnObject = false)
+    {
+        // TODO: Implement saveInLoop() method.
+    }
 }

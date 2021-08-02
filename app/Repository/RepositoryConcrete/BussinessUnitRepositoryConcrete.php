@@ -11,6 +11,7 @@ use App\Repository\MediatorRepository\DispatchNotifier;
 use App\Repository\MediatorRepository\INotifer;
 use App\Repository\Serializable;
 use Exception;
+use Illuminate\Container\Container;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Str;
@@ -19,7 +20,6 @@ use stdClass;
 class BussinessUnitRepositoryConcrete implements IRepository,INotifer,Serializable
 {
     protected $model = null;
-
     public function __construct()
     {
         $this->model = App::make(ModelsFactory::class,['className' => BussinessUnit::class]);
@@ -40,13 +40,19 @@ class BussinessUnitRepositoryConcrete implements IRepository,INotifer,Serializab
         }
     }
 
-    public function findAll(bool $join = false,bool $serialize = false)
+    public function findAll(bool $join = false,bool $serialize = false,int $limit = 0)
     {
-        $ret = $this->model->where('organization_id','=',auth()->user()->organization_id)->with('addressRelation')->get();
+        $query = $this->model;
+        $query = $query->where('organization_id','=',auth()->user()->organization_id)
+                       ->with(['addressRelation','employeeRelation']);
+
+        if($limit > 0){
+            $query = $query->limit($limit);
+        }
         if($serialize){
-         return $this->serialize($ret);
+         return $this->serialize($query->get());
         } else {
-            return $ret;
+            return $query->get();
         }
     }
 
@@ -78,6 +84,7 @@ class BussinessUnitRepositoryConcrete implements IRepository,INotifer,Serializab
         $bussiness->company_name = $data->company_name;
         $bussiness->fantasy_name = $data->fantasy_name;
         $bussiness->cpf_cnpj = $data->cpf_cnpj;
+
         $ret = $this->notifier('updateaddress',$data);
 
         if($ret){
@@ -120,7 +127,7 @@ class BussinessUnitRepositoryConcrete implements IRepository,INotifer,Serializab
         }
     }
 
-    public function get(array $conditions, array $coluns = [], bool $join = false, bool $first = false,bool $serialize = false)
+    public function get(array $conditions, array $coluns = [], bool $join = false, bool $first = false,bool $serialize = false,int $limit = 0)
     {
         $query = $this->model;
 
@@ -149,6 +156,9 @@ class BussinessUnitRepositoryConcrete implements IRepository,INotifer,Serializab
        }
        $query = $query->where('bussiness_units.organization_id','=',auth()->user()->organization_id);
 
+       if($limit > 0){
+           $query = $query->limit($limit);
+       }
        if($first){
            if($serialize){
                return $this->serialize($query->first());
@@ -211,6 +221,7 @@ class BussinessUnitRepositoryConcrete implements IRepository,INotifer,Serializab
             $bussinessSerialize->telphone = $value->addressRelation->telphone;
             $bussinessSerialize->celphone = $value->addressRelation->celphone;
             $bussinessSerialize->email = $value->addressRelation->email;
+            $bussinessSerialize->observation = $value->addressRelation->observation;
             $bussinessSerialize->address_updated_at = $value->addressRelation->updated_at;
             $bussinessSerialize->address_created_at = $value->addressRelation->created_at;
             $bussinessSerialize->address_deleted_at = $value->addressRelation->deleted_at;
@@ -227,5 +238,10 @@ class BussinessUnitRepositoryConcrete implements IRepository,INotifer,Serializab
         } else if ($type == 'json'){
             return $dataBussiness->jsonSerialize();
         }
+    }
+
+    public function saveInLoop(object $obj, bool $returnObject = false)
+    {
+        // TODO: Implement saveInLoop() method.
     }
 }

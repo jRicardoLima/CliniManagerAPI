@@ -8,6 +8,7 @@ use App\Models\HealthProcedure;
 use App\Repository\IRepository;
 use App\Repository\MediatorRepository\INotifer;
 use App\Repository\Serializable;
+use Illuminate\Container\Container;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
@@ -18,7 +19,6 @@ class HealthProcedureRepositoryConcrete implements IRepository, Serializable, IN
     protected $model = null;
     private $getDataRelations = false;
     private $isJoinRelation = [];
-
     public function __construct()
     {
         $this->model = App::make(ModelsFactory::class,['className' => HealthProcedure::class]);
@@ -47,7 +47,7 @@ class HealthProcedureRepositoryConcrete implements IRepository, Serializable, IN
         return $query;
     }
 
-    public function findAll(bool $join = false, bool $serialize = false)
+    public function findAll(bool $join = false, bool $serialize = false,int $limit = 0)
     {
         $query = $this->model;
 
@@ -57,6 +57,9 @@ class HealthProcedureRepositoryConcrete implements IRepository, Serializable, IN
 
         $query = $query->where('organization_id',auth()->user()->organization_id);
 
+        if($limit > 0){
+            $query = $query->limit($limit);
+        }
         if($serialize){
             return $this->serialize($query->get(),'');
         }
@@ -130,7 +133,7 @@ class HealthProcedureRepositoryConcrete implements IRepository, Serializable, IN
         return $healthProcedure->forceDelete();
     }
 
-    public function get(array $conditions, array $coluns = [], bool $join = false, bool $first = false, bool $serialize = false)
+    public function get(array $conditions, array $coluns = [], bool $join = false, bool $first = false, bool $serialize = false,int $limit = 0)
     {
         $query = $this->model;
 
@@ -158,6 +161,10 @@ class HealthProcedureRepositoryConcrete implements IRepository, Serializable, IN
             $this->isJoinBuilder(true,['health_procedure_specialties']);
         }
         $query = $query->where('health_procedures.organization_id','=',auth()->user()->organization_id);
+
+        if($limit > 0){
+            $query = $query->limit($limit);
+        }
         if($first){
             if($serialize){
                 return $this->serialize($query->first(),'',true);
@@ -273,5 +280,10 @@ class HealthProcedureRepositoryConcrete implements IRepository, Serializable, IN
                  AND health_procedures.id = :id";
 
         return DB::select($query,['id' => $idHealthProcedure]);
+    }
+
+    public function saveInLoop(object $obj, bool $returnObject = false)
+    {
+        // TODO: Implement saveInLoop() method.
     }
 }

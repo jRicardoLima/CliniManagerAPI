@@ -9,6 +9,7 @@ use App\Http\Controllers\OccupationController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductGroupController;
 use App\Http\Controllers\SpecialtieController;
+use App\Http\Controllers\StockMovementController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Middleware\VerifyTokenApi;
 use Illuminate\Http\Request;
@@ -106,5 +107,14 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
         Route::delete('/admin/product-group/{id}',[ProductGroupController::class,'delete']);
         Route::get('/admin/product-group/product-group-list',[ProductGroupController::class,'listProductGroup']);
         //End product group
+
+        //Stock Movement
+        Route::post('/admin/stock-movement/store',[StockMovementController::class,'store']);
+        Route::post('/admin/stock-movement/search',[StockMovementController::class,'search']);
+        Route::put('/admin/stock-movement/{id}',[StockMovementController::class,'update']);
+        Route::delete('/admin/stock-movement/{id}',[StockMovementController::class,'delete']);
+        Route::get('/admin/stock-movement/stock-movement-list',[StockMovementController::class,'listStockMovement']);
+        Route::post('/admin/stock-movement/save-xml-nfe',[StockMovementController::class,'saveXml']);
+        //End stock movement
     });
 });

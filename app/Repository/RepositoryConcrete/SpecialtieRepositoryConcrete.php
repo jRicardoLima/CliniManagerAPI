@@ -8,6 +8,7 @@ use App\Models\Specialtie;
 use App\Repository\IRepository;
 use App\Repository\MediatorRepository\INotifer;
 use App\Repository\Serializable;
+use Illuminate\Container\Container;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
@@ -21,7 +22,6 @@ class SpecialtieRepositoryConcrete implements IRepository,INotifer,Serializable
     private $isJoinRelation = [];
     public function __construct()
     {
-
         $this->model = App::make(ModelsFactory::class, ['className' => Specialtie::class]);
     }
 
@@ -49,7 +49,7 @@ class SpecialtieRepositoryConcrete implements IRepository,INotifer,Serializable
         return $query;
     }
 
-    public function findAll(bool $join = false, bool $serialize = false)
+    public function findAll(bool $join = false, bool $serialize = false,int $limit = 0)
     {
         $query = $this->model;
 
@@ -58,6 +58,9 @@ class SpecialtieRepositoryConcrete implements IRepository,INotifer,Serializable
         }
         $query = $query->where('organization_id', '=',auth()->user()->organization_id);
 
+        if($limit > 0){
+            $query = $query->limit($limit);
+        }
         if ($serialize) {
             return $this->serialize($query->get(),'');
         }
@@ -130,7 +133,7 @@ class SpecialtieRepositoryConcrete implements IRepository,INotifer,Serializable
         return $specialtie->forceDelete();
     }
 
-    public function get(array $conditions, array $coluns = [], bool $join = false, bool $first = false, bool $serialize = false)
+    public function get(array $conditions, array $coluns = [], bool $join = false, bool $first = false, bool $serialize = false,int $limit = 0)
     {
         $query = $this->model;
 
@@ -160,6 +163,9 @@ class SpecialtieRepositoryConcrete implements IRepository,INotifer,Serializable
         }
         $query = $query->where('organization_id','=',auth()->user()->organization_id);
 
+        if($limit > 0){
+            $query = $query->limit($limit);
+        }
         if ($first) {
             if ($serialize) {
                 return $this->serialize($query->first(), '', true);
@@ -287,5 +293,10 @@ class SpecialtieRepositoryConcrete implements IRepository,INotifer,Serializable
 
         return DB::select($query,['id' => $idSpecialtie]);
 
+    }
+
+    public function saveInLoop(object $obj, bool $returnObject = false)
+    {
+        // TODO: Implement saveInLoop() method.
     }
 }

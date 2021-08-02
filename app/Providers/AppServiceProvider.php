@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Exceptions\ExceptionsFactory;
 use App\Repository\MediatorRepository\DispatchNotifier;
 use App\Services\HttpClientService\IHttpClient;
 use Illuminate\Support\ServiceProvider;

@@ -59,4 +59,9 @@ class BussinessUnit extends Model
     {
         return $this->hasMany(Employee::class,'bussiness_id','id');
     }
+
+    public function stockMovementRelation()
+    {
+        return $this->hasMany(StockMovement::class,'bussiness_unit_id','id');
+    }
 }

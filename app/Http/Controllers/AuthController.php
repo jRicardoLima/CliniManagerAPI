@@ -50,7 +50,7 @@ class AuthController extends Controller
     {
         try{
             if(!Auth::attempt(['user_name' => $request->user_name,'password' => $request->password])){
-                return $this->error('Credenciais invalidas',200);
+                return $this->error('Credenciais invalidas',215);
             }
             Log::channel('systemLog')->info("Usuário ".auth()->user()->user_name." realizou o login");
 

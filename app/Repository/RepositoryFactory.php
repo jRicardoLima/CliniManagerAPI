@@ -4,6 +4,7 @@
 namespace App\Repository;
 
 
+use Illuminate\Container\Container;
 use ReflectionClass;
 
 class RepositoryFactory

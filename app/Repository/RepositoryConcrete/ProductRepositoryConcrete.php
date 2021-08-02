@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Repository\IRepository;
 use App\Repository\MediatorRepository\INotifer;
 use App\Repository\Serializable;
+use Illuminate\Container\Container;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
@@ -18,7 +19,6 @@ class ProductRepositoryConcrete implements IRepository, Serializable, INotifer
     private $model = null;
     private $getDataRelations = false;
     private $isJoinRelation = [];
-
     public function __construct()
     {
         $this->model = App::make(ModelsFactory::class,['className' => Product::class]);
@@ -47,20 +47,23 @@ class ProductRepositoryConcrete implements IRepository, Serializable, INotifer
         return $query;
     }
 
-    public function findAll(bool $join = false, bool $serialize = false)
+    public function findAll(bool $join = false, bool $serialize = false,int $limit = 0)
     {
         $query = $this->model;
 
         if($join){
             $this->getDataRelations = true;
         }
-        $query = $query->where('organization_id','=',auth()->user()->organization_id)
-                       ->limit(400)
-                       ->orderBy('products.created_at','ASC');
+        $query = $query->where('organization_id','=',auth()->user()->organization_id);
+
+        if($limit > 0){
+            $query = $query->limit($limit);
+        }
+        $query->orderBy('products.created_at','ASC');
         if($serialize){
             return $this->serialize($query->get(),'','');
         }
-        return $query;
+        return $query->get();
     }
 
     public function save(object $obj, bool $returnObject = false)
@@ -156,7 +159,7 @@ class ProductRepositoryConcrete implements IRepository, Serializable, INotifer
         return $product->forceDelete();
     }
 
-    public function get(array $conditions, array $coluns = [], bool $join = false, bool $first = false, bool $serialize = false)
+    public function get(array $conditions, array $coluns = [], bool $join = false, bool $first = false, bool $serialize = false,int $limit = 0)
     {
         $query = $this->model;
 
@@ -202,9 +205,12 @@ class ProductRepositoryConcrete implements IRepository, Serializable, INotifer
                            ->addSelect('products.*')
                            ->where('products_groups.name','like','%'.$conditions['group_name'].'%');
         }
-        $query = $query->where('products.organization_id','=',auth()->user()->organization_id)
-                       ->limit(400)
-                       ->orderBy('products.created_at','ASC');
+        $query = $query->where('products.organization_id','=',auth()->user()->organization_id);
+
+        if($limit > 0){
+            $query = $query->limit($limit);
+        }
+        $query = $query->orderBy('products.created_at','ASC');
 
         if($first){
             if($serialize){
@@ -213,7 +219,6 @@ class ProductRepositoryConcrete implements IRepository, Serializable, INotifer
             return $query->first();
         }
         if($serialize){
-
             return $this->serialize($query->get(),'');
         }
         return $query->get();
@@ -348,13 +353,8 @@ class ProductRepositoryConcrete implements IRepository, Serializable, INotifer
         return $data;
     }
 
-    private function getDataPivotProductsSuppliers($idProduct)
+    public function saveInLoop(object $obj, bool $returnObject = false)
     {
-        $query = "SELECT suppliers.* FROM  products_suppliers,products,suppliers
-                   WHERE products_suppliers.product_id = products.id
-                   AND products_suppliers.supplier_id = suppliers.id
-                   AND products_suppliers.supplier_id = :id";
-
-        return DB::select($query,['id' => $idProduct]);
+        // TODO: Implement saveInLoop() method.
     }
 }

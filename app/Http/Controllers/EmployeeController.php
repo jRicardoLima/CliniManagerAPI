@@ -138,11 +138,13 @@ class EmployeeController extends Controller
                 }
                 return $item;
             });
+
             $ret = $this->employeeRepository->update($id,$data);
-            DB::commit();
             if($ret){
+                DB::commit();
                 return $this->success([],'Funcionario atualizado com sucesso',200);
             }
+            DB::rollBack();
         }catch (ValidationException $e){
             DB::rollBack();
             return $this->success($e->errors(),'Erro de validação',215);
